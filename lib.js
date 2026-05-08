@@ -183,8 +183,8 @@ async function setupCB(canvas) {
         setMaxIterations: maxIterations => { if (!Number.isFinite(maxIterations) || (Math.floor(maxIterations) !== maxIterations) || (maxIterations < 0)) { throw new Error("maxIterations must be a non-negative whole finite number"); } values.maxIterations = maxIterations; },
         setSampleCount: sampleCount => { if (!Number.isFinite(sampleCount) || (Math.floor(sampleCount) !== sampleCount) || (sampleCount < 1)) { throw new Error("sampleCount must be a positive whole finite number"); } values.sampleCount = sampleCount; },
         setRadius: radius => { if (!Number.isFinite(radius) || (Math.floor(radius) !== radius)) { throw new Error("radius must be a whole finite number"); } values.radius = radius; },
-        setSkeleton: skeleton => { if (!(skeleton instanceof Boolean)) { throw new Error("skeleton must be a boolean"); } values.skeleton = skeleton; },
-        setSkeletonClampFix: skeletonClampFix => { if (!(skeletonClampFix instanceof Boolean)) { throw new Error("skeletonClampFix must be a boolean"); } values.skeletonClampFix = skeletonClampFix; },
+        setSkeleton: skeleton => { if (typeof skeleton !== "boolean") { throw new Error("skeleton must be a boolean"); } values.skeleton = skeleton; },
+        setSkeletonClampFix: skeletonClampFix => { if (typeof skeletonClampFix !== "boolean") { throw new Error("skeletonClampFix must be a boolean"); } values.skeletonClampFix = skeletonClampFix; },
         
         getCenter: () => { return values.center; },
         getZoom: () => { return values.zoom; },

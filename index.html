@@ -11,6 +11,11 @@
 <body>
     <h1 class="title">chromatic.blossom</h1>
     <div class="outline">
+        <h2>the.canvas</h2>
+        <p>That's the thing on the right. Scroll to zoom, drag right click to pan. If you are on mobile, switch to desktop.</p>
+    </div>
+    <canvas id="canvas" class="outline" width="500" height="500"></canvas>
+    <div class="outline config-container">
         <h2>configuration.values</h2>
         <div class="outline">
             <h3>maximum.iterations <span class="grey-text">(0 to inf)</span></h3>
@@ -48,7 +53,7 @@
         </div>
         <div class="outline">
             <h3>radius <span class="grey-text">(-inf to inf)</span></h3>
-            <p>Does <i>something</i>, the fuck do I know. I'm no omnipotent being.</p>
+            <p>Does <i>something</i>, the fuck do I know. I'm no omnipotent being. That's up to the creature in my basement.</p>
             <div class="outline number-input-container">
                 <input id="number-input-radius" type="number" title="radius" step="1" />
                 <button onclick="numberButton('radius', 1000);">+1000</button> 
@@ -152,12 +157,57 @@
                 <button onclick="numberButton('g', -1);">-1</button> 
                 <button onclick="numberButton('g', -10);">-10</button>
             </div>
+            <p>h: This parameter is responsible for... something? It changes the shape of the structure is the only thing I can say for sure.</p>
+            <div class="outline number-input-container">
+                <input id="number-input-h" type="number" title="h" />
+                <button onclick="numberButton('h', 10);">+10</button> 
+                <button onclick="numberButton('h', 1);">+1</button> 
+                <button onclick="numberButton('h', 0.1);">+0.1</button> 
+                <button onclick="numberButton('h', 0.01);">+0.01</button> 
+                <button onclick="numberButton('h', -0.01);">-0.01</button> 
+                <button onclick="numberButton('h', -0.1);">-0.1</button> 
+                <button onclick="numberButton('h', -1);">-1</button> 
+                <button onclick="numberButton('h', -10);">-10</button>
+            </div>
+            <p>i: This parameter is responsible for twisting or turning the structure.</p>
+            <div class="outline number-input-container">
+                <input id="number-input-i" type="number" title="i" />
+                <button onclick="numberButton('i', 10);">+10</button> 
+                <button onclick="numberButton('i', 1);">+1</button> 
+                <button onclick="numberButton('i', 0.1);">+0.1</button> 
+                <button onclick="numberButton('i', 0.01);">+0.01</button> 
+                <button onclick="numberButton('i', -0.01);">-0.01</button> 
+                <button onclick="numberButton('i', -0.1);">-0.1</button> 
+                <button onclick="numberButton('i', -1);">-1</button> 
+                <button onclick="numberButton('i', -10);">-10</button>
+            </div>
+            <p>j: This parameter sucks. Besides that, I implemented it in a way that it only applies if the value isn't 0. Just don't use it, I guess.</p>
+            <div class="outline number-input-container">
+                <input id="number-input-j" type="number" title="j" />
+                <button onclick="numberButton('j', 10);">+10</button> 
+                <button onclick="numberButton('j', 1);">+1</button> 
+                <button onclick="numberButton('j', 0.1);">+0.1</button> 
+                <button onclick="numberButton('j', 0.01);">+0.01</button> 
+                <button onclick="numberButton('j', -0.01);">-0.01</button> 
+                <button onclick="numberButton('j', -0.1);">-0.1</button> 
+                <button onclick="numberButton('j', -1);">-1</button> 
+                <button onclick="numberButton('j', -10);">-10</button>
+            </div>
         </div>
-    </div>
-    <div class="outline">
-        <h2>the.canvas</h2>
-        <p>Scroll to zoom, drag right click to pan. If you are on mobile, switch to desktop.</p>
-        <canvas id="canvas" width="500" height="500"></canvas>
+        <div class="outline">
+            <h3>skeleton.mode</h3>
+            <p>Skeleton mode displays a b/w render that may often reveal different structure, hence the name "skeleton".</p>
+            <div class="outline boolean-input-container">
+                <button id="bool-button-skeleton-on">Toggle on</button>
+                <button id="bool-button-skeleton-off">Toggle off</button>
+            </div>
+            <h3>skeleton.clamp.fix</h3>
+            <p>Skeleton's clamp fix implements a fix not present in old versions often causing skeleton renders to not be able to be multisampled correctly, causing multiple quality issues. As I liked the stylistic aspect to some degree though, I decided to make it toggleable. If this toggle does nothing, I probably forgot that this switch is still broken. If it does something, I forgot to remove this text.</p>
+            <div class="outline boolean-input-container">
+                <button id="bool-button-skeleton-clamp-fix-on">Toggle on</button>
+                <button id="bool-button-skeleton-clamp-fix-off">Toggle off</button>
+            </div>
+        </div>
     </div>
 </body>
 </html>

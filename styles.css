@@ -2,9 +2,12 @@
 body {
     background-color: #1a1a1a;
     color: #ffffff;
-    font-family: "Courier New", Courier, monospace;
     margin: 0;
     padding: 0;
+}
+
+body, input, button {
+    font-family: "Courier New", Courier, monospace;
 }
 
 .title {
@@ -17,7 +20,7 @@ body {
     margin: 10px;
 }
 
-.number-input-container {
+.number-input-container, .boolean-input-container {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -47,13 +50,38 @@ input:hover, button:hover {
     background-color: #303030;
 }
 
-.number-input-container button {
-    border-left: none;
+.number-input-container button, .boolean-input-container button {
     padding-left: 10px;
     padding-right: 10px;
     cursor: pointer;
 }
 
+input:disabled, button:disabled {
+    background-color: #505050;
+    cursor: default;
+}
+
+.number-input-container button {
+    border-left: none;
+}
+
+.boolean-input-container button:nth-child(2) {
+    border-left: none;
+}
+
 .grey-text {
     color: #808080;
+}
+
+#canvas {
+    background-color: #1a1a1a;
+    position: fixed;
+    top: 0;
+    right: 0;
+    margin-top: 0;
+    margin-right: 0;
+}
+
+.config-container {
+    margin-right: 600px;
 }
