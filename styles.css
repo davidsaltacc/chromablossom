@@ -15,9 +15,17 @@ body, input, button {
 }
 
 .outline {
-    border: 1px solid #ffffff;
+    border: 1px solid #6f6f6f;
     padding: 10px;
     margin: 10px;
+}
+
+.outline .outline {
+    border: 1px solid #9f9f9f;
+}
+
+.outline .outline .outline {
+    border: 1px solid #ffffff;
 }
 
 .number-input-container, .boolean-input-container {
@@ -83,7 +91,7 @@ input:disabled, button:disabled {
     margin-right: 0;
 }
 
-.config-container, .canvas-info {
+.config-container, .canvas-info, .export-container {
     margin-right: 600px;
 }
 
