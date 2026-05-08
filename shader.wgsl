@@ -1,11 +1,27 @@
 
 struct VertexOutput {
 	@builtin(position) position: vec4<f32>,
-	@location(0) fragmentPosition: vec2<f32>,
+	@location(0) fragmentPosition: vec2<f32>
 }
 
 struct Uniforms {
-	canvasDimensions: vec2<f32>
+	canvasDimensions: vec2<f32>,
+	center: vec2<f32>,
+	zoom: f32,
+	a: f32,
+	b: f32,
+	c: f32,
+	d: f32,
+	e: f32,
+	f: f32,
+	g: f32,
+	h: f32,
+	i: f32,
+	j: f32,
+	maxIterations: u32,
+    radius: u32,
+	sampleCount: u32,
+	flags: u32
 }
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -34,28 +50,34 @@ fn rand(c: vec2<f32>) -> f32 {
 @fragment
 fn fragment(input: VertexOutput) -> @location(0) vec4<f32> { 
 
-    var a: f32 = -0.54;
-	var b: f32 = -0.99;
-	var c: f32 = -3;
-	var d: f32 = 7.77;
-	var e: f32 = -3.92;
-	var f: f32 = -3.51;
-	var g: f32 = 1;
-	var h: f32 = 2.31;
-	var i: f32 = -8.21;
-	var j: f32 = 2.6;
+    var a: f32 = uniforms.a;
+	var b: f32 = uniforms.b;
+	var c: f32 = uniforms.c;
+	var d: f32 = uniforms.d;
+	var e: f32 = uniforms.e;
+	var f: f32 = uniforms.f;
+	var g: f32 = uniforms.g;
+	var h: f32 = uniforms.h;
+	var i: f32 = uniforms.i;
+	var j: f32 = uniforms.j;
 
-	var zoom: f32 = 1. / 2.5;
-	var center: vec2<f32> = vec2<f32>(0., 0.);
-	var iterations: u32 = 20;
-	var radius: u32 = 1000;
+	var zoom: f32 = uniforms.zoom;
+	var center: vec2<f32> = uniforms.center;
+	var iterations: u32 = uniforms.maxIterations;
+	var radius: u32 = uniforms.radius;
 
-	var skeleton: u32 = 1;
-	var skeletonClampFix: u32 = 1;
+	var skeleton: u32 = (uniforms.flags >> 1) & 1u;
+	var skeletonClampFix: u32 = uniforms.flags & 1u;
 
-	var sampleCount: u32 = 20;
+	var sampleCount: u32 = uniforms.sampleCount;
 
 	var rc: vec2<f32> = input.fragmentPosition / zoom + center;
+	var ratio = uniforms.canvasDimensions.x / uniforms.canvasDimensions.y;
+	if (ratio > 1) {
+		rc.x *= ratio;
+	} else {
+		rc.y /= ratio;
+	}
     
 	var color: vec3<f32> = vec3<f32>(0., 0., 0.);  
 	var rr: f32 = 0.; 

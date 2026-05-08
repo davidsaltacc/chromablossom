@@ -3,12 +3,161 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>chromablossom.rewrite</title>
+    <title>chromatic.blossom.rewrite</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="lib.js"></script>
     <script src="main.js" type="module" defer></script>
 </head>
 <body>
-    <canvas id="canvas" width="1000" height="1000"></canvas>
+    <h1 class="title">chromatic.blossom</h1>
+    <div class="outline">
+        <h2>configuration.values</h2>
+        <div class="outline">
+            <h3>maximum.iterations <span class="grey-text">(0 to inf)</span></h3>
+            <p>The amount of times the algorithm loops. Higher values cause more detail in certain areas, lower values can reduce noise. Find a balance for whatever shot you're trying to get. Or just leave it at the default and never look at it again.</p>
+            <div class="outline number-input-container">
+                <input id="number-input-maximum-iterations" type="number" title="maximum.iterations" step="1" />
+                <button onclick="numberButton('maximum-iterations', 10);">+10</button> 
+                <button onclick="numberButton('maximum-iterations', 1);">+1</button> 
+                <!--
+                <button onclick="numberButton('maximum-iterations', 0.1);">+0.1</button> 
+                <button onclick="numberButton('maximum-iterations', 0.01);">+0.01</button> 
+                <button onclick="numberButton('maximum-iterations', -0.01);">-0.01</button> 
+                <button onclick="numberButton('maximum-iterations', -0.1);">-0.1</button> 
+                -->
+                <button onclick="numberButton('maximum-iterations', -1);">-1</button> 
+                <button onclick="numberButton('maximum-iterations', -10);">-10</button>
+            </div>
+        </div>
+        <div class="outline">
+            <h3>sample.count <span class="grey-text">(1 to inf)</span></h3>
+            <p>The amount of samples to get for each single rendered pixel. High values mean high rendering intensity, but also more quality and less noise.</p>
+            <div class="outline number-input-container">
+                <input id="number-input-sample-count" type="number" title="sample.count" step="1" />
+                <button onclick="numberButton('sample-count', 10);">+10</button> 
+                <button onclick="numberButton('sample-count', 1);">+1</button> 
+                <!--
+                <button onclick="numberButton('sample-count', 0.1);">+0.1</button> 
+                <button onclick="numberButton('sample-count', 0.01);">+0.01</button> 
+                <button onclick="numberButton('sample-count', -0.01);">-0.01</button> 
+                <button onclick="numberButton('sample-count', -0.1);">-0.1</button> 
+                -->
+                <button onclick="numberButton('sample-count', -1);">-1</button> 
+                <button onclick="numberButton('sample-count', -10);">-10</button>
+            </div>
+        </div>
+        <div class="outline">
+            <h3>radius <span class="grey-text">(-inf to inf)</span></h3>
+            <p>Does <i>something</i>, the fuck do I know. I'm no omnipotent being.</p>
+            <div class="outline number-input-container">
+                <input id="number-input-radius" type="number" title="radius" step="1" />
+                <button onclick="numberButton('radius', 1000);">+1000</button> 
+                <button onclick="numberButton('radius', 10);">+10</button> 
+                <button onclick="numberButton('radius', 1);">+1</button> 
+                <!--
+                <button onclick="numberButton('radius', 0.1);">+0.1</button> 
+                <button onclick="numberButton('radius', 0.01);">+0.01</button> 
+                <button onclick="numberButton('radius', -0.01);">-0.01</button> 
+                <button onclick="numberButton('radius', -0.1);">-0.1</button> 
+                -->
+                <button onclick="numberButton('radius', -1);">-1</button> 
+                <button onclick="numberButton('radius', -10);">-10</button>
+                <button onclick="numberButton('radius', -1000);">-1000</button>
+            </div>
+        </div>
+        <div class="outline">
+            <h3>a-j <span class="grey-text">(-inf to inf)</span></h3>
+            <p>These values are responsible for controlling the shape and appearance of the output structure.</p>
+            <p>a: This parameter is responsible for an effect somewhat close to pinching in and out of the structure.</p>
+            <div class="outline number-input-container">
+                <input id="number-input-a" type="number" title="a" />
+                <button onclick="numberButton('a', 10);">+10</button> 
+                <button onclick="numberButton('a', 1);">+1</button> 
+                <button onclick="numberButton('a', 0.1);">+0.1</button> 
+                <button onclick="numberButton('a', 0.01);">+0.01</button> 
+                <button onclick="numberButton('a', -0.01);">-0.01</button> 
+                <button onclick="numberButton('a', -0.1);">-0.1</button> 
+                <button onclick="numberButton('a', -1);">-1</button> 
+                <button onclick="numberButton('a', -10);">-10</button>
+            </div>
+            <p>b: This parameter is responsible for "condensing" or "spreading" the structure, with values close to 0 meaning it is more condensed.</p>
+            <div class="outline number-input-container">
+                <input id="number-input-b" type="number" title="b" />
+                <button onclick="numberButton('b', 10);">+10</button> 
+                <button onclick="numberButton('b', 1);">+1</button> 
+                <button onclick="numberButton('b', 0.1);">+0.1</button> 
+                <button onclick="numberButton('b', 0.01);">+0.01</button> 
+                <button onclick="numberButton('b', -0.01);">-0.01</button> 
+                <button onclick="numberButton('b', -0.1);">-0.1</button> 
+                <button onclick="numberButton('b', -1);">-1</button> 
+                <button onclick="numberButton('b', -10);">-10</button>
+            </div>
+            <p>c: This parameter is responsible for the amount of "petals" the structure has, heavily modifying the petal structure. g does this without changing the petal structure much. The amount of petals will always be c-1.</p>
+            <div class="outline number-input-container">
+                <input id="number-input-c" type="number" title="c" />
+                <button onclick="numberButton('c', 10);">+10</button> 
+                <button onclick="numberButton('c', 1);">+1</button> 
+                <button onclick="numberButton('c', 0.1);">+0.1</button> 
+                <button onclick="numberButton('c', 0.01);">+0.01</button> 
+                <button onclick="numberButton('c', -0.01);">-0.01</button> 
+                <button onclick="numberButton('c', -0.1);">-0.1</button> 
+                <button onclick="numberButton('c', -1);">-1</button> 
+                <button onclick="numberButton('c', -10);">-10</button>
+            </div>
+            <p>d: This parameter is responsible for ...something. It changes the colors slightly, and around small values also the structure, especially on the outward ends.</p>
+            <div class="outline number-input-container">
+                <input id="number-input-d" type="number" title="d" />
+                <button onclick="numberButton('d', 10);">+10</button> 
+                <button onclick="numberButton('d', 1);">+1</button> 
+                <button onclick="numberButton('d', 0.1);">+0.1</button> 
+                <button onclick="numberButton('d', 0.01);">+0.01</button> 
+                <button onclick="numberButton('d', -0.01);">-0.01</button> 
+                <button onclick="numberButton('d', -0.1);">-0.1</button> 
+                <button onclick="numberButton('d', -1);">-1</button> 
+                <button onclick="numberButton('d', -10);">-10</button>
+            </div>
+            <p>e: This parameter is responsible for an effect as b, but creating entirely different effects.</p>
+            <div class="outline number-input-container">
+                <input id="number-input-e" type="number" title="e" />
+                <button onclick="numberButton('e', 10);">+10</button> 
+                <button onclick="numberButton('e', 1);">+1</button> 
+                <button onclick="numberButton('e', 0.1);">+0.1</button> 
+                <button onclick="numberButton('e', 0.01);">+0.01</button> 
+                <button onclick="numberButton('e', -0.01);">-0.01</button> 
+                <button onclick="numberButton('e', -0.1);">-0.1</button> 
+                <button onclick="numberButton('e', -1);">-1</button> 
+                <button onclick="numberButton('e', -10);">-10</button>
+            </div>
+            <p>f: This parameter is responsible for a similar effect to a, except in its fully own way.</p>
+            <div class="outline number-input-container">
+                <input id="number-input-f" type="number" title="f" />
+                <button onclick="numberButton('f', 10);">+10</button> 
+                <button onclick="numberButton('f', 1);">+1</button> 
+                <button onclick="numberButton('f', 0.1);">+0.1</button> 
+                <button onclick="numberButton('f', 0.01);">+0.01</button> 
+                <button onclick="numberButton('f', -0.01);">-0.01</button> 
+                <button onclick="numberButton('f', -0.1);">-0.1</button> 
+                <button onclick="numberButton('f', -1);">-1</button> 
+                <button onclick="numberButton('f', -10);">-10</button>
+            </div>
+            <p>g: This parameter is responsible for changing the amount of petals just like c, except it preserves the petal structure pretty well. Petal count is multiplicative, not additive.</p>
+            <div class="outline number-input-container">
+                <input id="number-input-g" type="number" title="g" />
+                <button onclick="numberButton('g', 10);">+10</button> 
+                <button onclick="numberButton('g', 1);">+1</button> 
+                <button onclick="numberButton('g', 0.1);">+0.1</button> 
+                <button onclick="numberButton('g', 0.01);">+0.01</button> 
+                <button onclick="numberButton('g', -0.01);">-0.01</button> 
+                <button onclick="numberButton('g', -0.1);">-0.1</button> 
+                <button onclick="numberButton('g', -1);">-1</button> 
+                <button onclick="numberButton('g', -10);">-10</button>
+            </div>
+        </div>
+    </div>
+    <div class="outline">
+        <h2>the.canvas</h2>
+        <p>Scroll to zoom, drag right click to pan. If you are on mobile, switch to desktop.</p>
+        <canvas id="canvas" width="500" height="500"></canvas>
+    </div>
 </body>
 </html>
