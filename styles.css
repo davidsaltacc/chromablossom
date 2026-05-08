@@ -24,6 +24,7 @@ body, input, button {
     display: flex;
     flex-direction: row;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 input::-webkit-outer-spin-button,
