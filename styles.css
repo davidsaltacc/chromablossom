@@ -83,7 +83,7 @@ input:disabled, button:disabled {
     margin-right: 0;
 }
 
-.config-container {
+.config-container, .canvas-info {
     margin-right: 600px;
 }
 
