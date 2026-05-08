@@ -12,11 +12,33 @@
     <h1 class="title">chromatic.blossom</h1>
     <div class="outline">
         <h2>the.canvas</h2>
-        <p>That's the thing on the right. Scroll to zoom, drag right click to pan. If you are on mobile, switch to desktop.</p>
+        <p>That's the thing on the right. It's just a preview, the final export will be of higher quality. Scroll to zoom, drag right click to pan. If you are on mobile, switch to desktop.</p>
     </div>
     <canvas id="canvas" class="outline" width="500" height="500"></canvas>
     <div class="outline config-container">
         <h2>configuration.values</h2>
+        <div class="outline">
+            <h3>canvas.size <span class="grey-text">(1 to inf)</span></h3>
+            <p>The size of the canvas. Not the size of the final render, this is just a preview.</p>
+            <div class="outline number-input-container two-number-input">
+                <p>x:</p>
+                <input id="number-input-canvas-size-x" type="number" title="canvas.size.x" step="1" />
+                <button onclick="numberButton('canvas-size-x', 100);">+100</button> 
+                <button onclick="numberButton('canvas-size-x', 10);">+10</button> 
+                <button onclick="numberButton('canvas-size-x', 1);">+1</button> 
+                <button onclick="numberButton('canvas-size-x', -1);">-1</button> 
+                <button onclick="numberButton('canvas-size-x', -10);">-10</button>
+                <button onclick="numberButton('canvas-size-x', -100);">-100</button>
+                <p>y:</p>
+                <input id="number-input-canvas-size-y" type="number" title="canvas.size.y" step="1" />
+                <button onclick="numberButton('canvas-size-y', 100);">+100</button> 
+                <button onclick="numberButton('canvas-size-y', 10);">+10</button> 
+                <button onclick="numberButton('canvas-size-y', 1);">+1</button> 
+                <button onclick="numberButton('canvas-size-y', -1);">-1</button> 
+                <button onclick="numberButton('canvas-size-y', -10);">-10</button>
+                <button onclick="numberButton('canvas-size-y', -100);">-100</button>
+            </div>
+        </div>
         <div class="outline">
             <h3>maximum.iterations <span class="grey-text">(0 to inf)</span></h3>
             <p>The amount of times the algorithm loops. Higher values cause more detail in certain areas, lower values can reduce noise. Find a balance for whatever shot you're trying to get. Or just leave it at the default and never look at it again.</p>
@@ -24,12 +46,6 @@
                 <input id="number-input-maximum-iterations" type="number" title="maximum.iterations" step="1" />
                 <button onclick="numberButton('maximum-iterations', 10);">+10</button> 
                 <button onclick="numberButton('maximum-iterations', 1);">+1</button> 
-                <!--
-                <button onclick="numberButton('maximum-iterations', 0.1);">+0.1</button> 
-                <button onclick="numberButton('maximum-iterations', 0.01);">+0.01</button> 
-                <button onclick="numberButton('maximum-iterations', -0.01);">-0.01</button> 
-                <button onclick="numberButton('maximum-iterations', -0.1);">-0.1</button> 
-                -->
                 <button onclick="numberButton('maximum-iterations', -1);">-1</button> 
                 <button onclick="numberButton('maximum-iterations', -10);">-10</button>
             </div>
@@ -40,13 +56,7 @@
             <div class="outline number-input-container">
                 <input id="number-input-sample-count" type="number" title="sample.count" step="1" />
                 <button onclick="numberButton('sample-count', 10);">+10</button> 
-                <button onclick="numberButton('sample-count', 1);">+1</button> 
-                <!--
-                <button onclick="numberButton('sample-count', 0.1);">+0.1</button> 
-                <button onclick="numberButton('sample-count', 0.01);">+0.01</button> 
-                <button onclick="numberButton('sample-count', -0.01);">-0.01</button> 
-                <button onclick="numberButton('sample-count', -0.1);">-0.1</button> 
-                -->
+                <button onclick="numberButton('sample-count', 1);">+1</button>
                 <button onclick="numberButton('sample-count', -1);">-1</button> 
                 <button onclick="numberButton('sample-count', -10);">-10</button>
             </div>
@@ -58,13 +68,7 @@
                 <input id="number-input-radius" type="number" title="radius" step="1" />
                 <button onclick="numberButton('radius', 1000);">+1000</button> 
                 <button onclick="numberButton('radius', 10);">+10</button> 
-                <button onclick="numberButton('radius', 1);">+1</button> 
-                <!--
-                <button onclick="numberButton('radius', 0.1);">+0.1</button> 
-                <button onclick="numberButton('radius', 0.01);">+0.01</button> 
-                <button onclick="numberButton('radius', -0.01);">-0.01</button> 
-                <button onclick="numberButton('radius', -0.1);">-0.1</button> 
-                -->
+                <button onclick="numberButton('radius', 1);">+1</button>
                 <button onclick="numberButton('radius', -1);">-1</button> 
                 <button onclick="numberButton('radius', -10);">-10</button>
                 <button onclick="numberButton('radius', -1000);">-1000</button>

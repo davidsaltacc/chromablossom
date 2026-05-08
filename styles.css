@@ -85,3 +85,8 @@ input:disabled, button:disabled {
 .config-container {
     margin-right: 600px;
 }
+
+.two-number-input p {
+    margin-right: 10px;
+    margin-left: 10px;
+}

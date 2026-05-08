@@ -101,6 +101,8 @@ setupCB(canvas).then(cbContext => {
 
     cbContext.drawToCanvas();
 
+    setupNumberInput("canvas-size-x", () => canvas.width, value => { canvas.width = Math.max(value, 1); cbContext.drawToCanvas(); });
+    setupNumberInput("canvas-size-y", () => canvas.height, value => { canvas.height = Math.max(value, 1); cbContext.drawToCanvas(); });
     setupNumberInput("maximum-iterations", () => cbContext.getMaxIterations(), value => { cbContext.setMaxIterations(value); cbContext.drawToCanvas(); });
     setupNumberInput("sample-count", () => cbContext.getSampleCount(), value => { cbContext.setSampleCount(value); cbContext.drawToCanvas(); });
     setupNumberInput("radius", () => cbContext.getRadius(), value => { cbContext.setRadius(value); cbContext.drawToCanvas(); });
@@ -108,7 +110,7 @@ setupCB(canvas).then(cbContext => {
     setupNumberInput("b", () => cbContext.getB(), value => { cbContext.setB(value); cbContext.drawToCanvas(); });
     setupNumberInput("c", () => cbContext.getC(), value => { cbContext.setC(value); cbContext.drawToCanvas(); });
     setupNumberInput("d", () => cbContext.getD(), value => { cbContext.setD(value); cbContext.drawToCanvas(); });
-    setupNumberInput("e", () => cbContext.getE(), value => { cbContext.setE(value); cbContext.drawToCanvas(); }); // TODO explore with around 6. interesting stuff i think
+    setupNumberInput("e", () => cbContext.getE(), value => { cbContext.setE(value); cbContext.drawToCanvas(); });
     setupNumberInput("f", () => cbContext.getF(), value => { cbContext.setF(value); cbContext.drawToCanvas(); }); 
     setupNumberInput("g", () => cbContext.getG(), value => { cbContext.setG(value); cbContext.drawToCanvas(); }); 
     setupNumberInput("h", () => cbContext.getH(), value => { cbContext.setH(value); cbContext.drawToCanvas(); }); 
