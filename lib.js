@@ -10,25 +10,31 @@ async function setupCB(canvas) {
         throw new Error("canvas must be a HTMLCanvasElement");
     }
 
-    const values = {
-        a: 0.5,
-        b: 0.5,
-        c: 8,
-        d: 4,
-        e: 1,
-        f: 1,
-        g: 1,
-        h: 0,
-        i: 0,
-        j: 0,
-        maxIterations: 20,
-        sampleCount: 20,
-        radius: 1000,
-        center: [ 0, 0 ],
-        zoom: 1 / 2.5,
-        skeleton: false,
-        skeletonClampFix: true
-    };
+    let values = {};
+
+    function setDefaultValues() {
+        values = {
+            a: 0.5,
+            b: 0.5,
+            c: 8,
+            d: 4,
+            e: 1,
+            f: 1,
+            g: 1,
+            h: 0,
+            i: 0,
+            j: 0,
+            maxIterations: 20,
+            sampleCount: 20,
+            radius: 1000,
+            center: [ 0, 0 ],
+            zoom: 1 / 2.5,
+            skeleton: false,
+            skeletonClampFix: true
+        };
+    }
+
+    setDefaultValues();
 
     const context = canvas.getContext("webgpu");
         
@@ -430,6 +436,7 @@ async function setupCB(canvas) {
     return {
 
         drawToCanvas,
+        setDefaultValues,
         renderExport: renderHighQualityExport,
 
         setCenter: center => { if (!(center instanceof Array) || center.length !== 2 || !Number.isFinite(center[0]) || !Number.isFinite(center[1])) { throw new Error("center must be an array of two finite values"); } values.center = center; },

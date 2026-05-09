@@ -24,6 +24,8 @@
     </div>
     <div class="outline config-container">
         <h2>configuration.values</h2>
+        <button onclick="resetValues();">Reset all</button>
+        <button onclick="randomizeValues();">Randomize</button>
         <div class="outline">
             <h3>canvas.size <span class="grey-text">(1 to inf)</span></h3>
             <p>The size of the canvas. Not the size of the final render, this is just a preview.</p>
@@ -213,7 +215,7 @@
                 <button id="bool-button-skeleton-off">Toggle off</button>
             </div>
             <h3>skeleton.clamp.fix</h3>
-            <p>Skeleton's clamp fix implements a fix not present in old versions often causing skeleton renders to not be able to be multisampled correctly, causing multiple quality issues. As I liked the stylistic aspect to some degree though, I decided to make it toggleable. If this toggle does nothing, I probably forgot that this switch is still broken. If it does something, I forgot to remove this text.</p>
+            <p>Skeleton's clamp fix implements a fix not present in old versions often causing skeleton renders to not be able to be multisampled correctly, causing multiple quality issues. As I liked the stylistic aspect to some degree though, I decided to make it toggleable.</p>
             <div class="outline boolean-input-container">
                 <button id="bool-button-skeleton-clamp-fix-on">Toggle on</button>
                 <button id="bool-button-skeleton-clamp-fix-off">Toggle off</button>

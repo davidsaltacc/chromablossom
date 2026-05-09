@@ -173,28 +173,54 @@ setupCB(canvas).then(cbContext => {
         cbContext.setZoom(Number.parseFloat(url.searchParams.get("zm") ?? cbContext.getZoom()));
     };
 
+    window.resetValues = () => {
+        cbContext.setDefaultValues();
+        window.updateUi();
+        cbContext.drawToCanvas();
+    };
+
+    window.randomizeValues = () => {
+        cbContext.setA(Number.parseFloat((((Math.random() - 0.5) * 2) * 4).toFixed(2)));
+        cbContext.setB(Number.parseFloat((((Math.random() - 0.5) * 2) * 5).toFixed(2)));
+        cbContext.setC(Number.parseFloat(Math.floor(((Math.random() - 0.5) * 2) * 10)));
+        cbContext.setC(cbContext.getC() == 0 ? 1 : cbContext.getC());
+        cbContext.setD(Number.parseFloat((((Math.random() - 0.5) * 2) * 15).toFixed(2)));
+        cbContext.setE(Number.parseFloat((((Math.random() - 0.5) * 2) * 10).toFixed(2)));
+        cbContext.setF(Number.parseFloat((((Math.random() - 0.5) * 2) * 6).toFixed(2)));
+        cbContext.setG(Number.parseFloat(Math.floor(((Math.random() - 0.5) * 2) * 4) / 2));
+        cbContext.setH(Number.parseFloat((((Math.random() - 0.5) * 2) * 5).toFixed(2)));
+        cbContext.setI(Number.parseFloat((((Math.random() - 0.5) * 2) * 10).toFixed(2)));
+        cbContext.setJ(Number.parseFloat((((Math.random() - 0.5) * 2) * 4).toFixed(2)));
+        window.updateUi();
+        cbContext.drawToCanvas();
+    };
+
     window.drawToCanvas = cbContext.drawToCanvas;
 
     window.applyPreset(window.location.href);
     cbContext.drawToCanvas();
 
-    setupNumberInput("canvas-size-x", () => canvas.width, value => { canvas.width = Math.max(value, 1); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
-    setupNumberInput("canvas-size-y", () => canvas.height, value => { canvas.height = Math.max(value, 1); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
-    setupNumberInput("maximum-iterations", () => cbContext.getMaxIterations(), value => { cbContext.setMaxIterations(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
-    setupNumberInput("sample-count", () => cbContext.getSampleCount(), value => { cbContext.setSampleCount(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
-    setupNumberInput("radius", () => cbContext.getRadius(), value => { cbContext.setRadius(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
-    setupNumberInput("a", () => cbContext.getA(), value => { cbContext.setA(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
-    setupNumberInput("b", () => cbContext.getB(), value => { cbContext.setB(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
-    setupNumberInput("c", () => cbContext.getC(), value => { cbContext.setC(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
-    setupNumberInput("d", () => cbContext.getD(), value => { cbContext.setD(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
-    setupNumberInput("e", () => cbContext.getE(), value => { cbContext.setE(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
-    setupNumberInput("f", () => cbContext.getF(), value => { cbContext.setF(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } }); 
-    setupNumberInput("g", () => cbContext.getG(), value => { cbContext.setG(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } }); 
-    setupNumberInput("h", () => cbContext.getH(), value => { cbContext.setH(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } }); 
-    setupNumberInput("i", () => cbContext.getI(), value => { cbContext.setI(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } }); 
-    setupNumberInput("j", () => cbContext.getJ(), value => { cbContext.setJ(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
-    setupBoolButton("skeleton", () => cbContext.getSkeleton(), value => { cbContext.setSkeleton(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
-    setupBoolButton("skeleton-clamp-fix", () => cbContext.getSkeletonClampFix(), value => { cbContext.getSkeletonClampFix(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+    window.updateUi = () => {
+        setupNumberInput("canvas-size-x", () => canvas.width, value => { canvas.width = Math.max(value, 1); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+        setupNumberInput("canvas-size-y", () => canvas.height, value => { canvas.height = Math.max(value, 1); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+        setupNumberInput("maximum-iterations", () => cbContext.getMaxIterations(), value => { cbContext.setMaxIterations(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+        setupNumberInput("sample-count", () => cbContext.getSampleCount(), value => { cbContext.setSampleCount(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+        setupNumberInput("radius", () => cbContext.getRadius(), value => { cbContext.setRadius(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+        setupNumberInput("a", () => cbContext.getA(), value => { cbContext.setA(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+        setupNumberInput("b", () => cbContext.getB(), value => { cbContext.setB(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+        setupNumberInput("c", () => cbContext.getC(), value => { cbContext.setC(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+        setupNumberInput("d", () => cbContext.getD(), value => { cbContext.setD(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+        setupNumberInput("e", () => cbContext.getE(), value => { cbContext.setE(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+        setupNumberInput("f", () => cbContext.getF(), value => { cbContext.setF(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } }); 
+        setupNumberInput("g", () => cbContext.getG(), value => { cbContext.setG(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } }); 
+        setupNumberInput("h", () => cbContext.getH(), value => { cbContext.setH(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } }); 
+        setupNumberInput("i", () => cbContext.getI(), value => { cbContext.setI(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } }); 
+        setupNumberInput("j", () => cbContext.getJ(), value => { cbContext.setJ(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+        setupBoolButton("skeleton", () => cbContext.getSkeleton(), value => { cbContext.setSkeleton(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+        setupBoolButton("skeleton-clamp-fix", () => cbContext.getSkeletonClampFix(), value => { cbContext.setSkeletonClampFix(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+    };
+
+    window.updateUi();
 
     window.cbContext = cbContext;
 
