@@ -24,7 +24,9 @@ function setupBoolButton(id, getter, setter) {
     const buttonOff = document.querySelector("#bool-button-" + id + "-off");
     if (getter()) {
         buttonOn.setAttribute("disabled", "");
+        buttonOff.removeAttribute("disabled");
     } else {
+        buttonOn.removeAttribute("disabled");
         buttonOff.setAttribute("disabled", "");
     }
     buttonOn.onclick = () => {
