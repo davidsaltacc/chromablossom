@@ -45,12 +45,15 @@ window.toggleCanvasVisibility = () => {
     if (canvas.style.display !== "none") {
         canvas.style.display = "none";
         document.querySelector("#save-draft-button").style.display = "none";
+        document.querySelector("#open-preset-button").style.display = "none";
         document.querySelector("#toggle-canvas-button").classList.remove("canvas-is-visible");
         return false;
     } else {
         canvas.style.display = "";
         document.querySelector("#save-draft-button").style.display = "";
+        document.querySelector("#open-preset-button").style.display = "";
         document.querySelector("#toggle-canvas-button").classList.add("canvas-is-visible");
+        window.drawToCanvas();
         return true;
     }
 }
@@ -123,25 +126,75 @@ setupCB(canvas).then(cbContext => {
         a.remove();
     }
 
+    window.openPresetLink = () => {
+        const url = new URL(window.location.href.split("?")[0]);
+        url.searchParams.append("a", cbContext.getA().toString());
+        url.searchParams.append("b", cbContext.getB().toString());
+        url.searchParams.append("c", cbContext.getC().toString());
+        url.searchParams.append("d", cbContext.getD().toString());
+        url.searchParams.append("e", cbContext.getE().toString());
+        url.searchParams.append("f", cbContext.getF().toString());
+        url.searchParams.append("g", cbContext.getG().toString());
+        url.searchParams.append("h", cbContext.getH().toString());
+        url.searchParams.append("i", cbContext.getI().toString());
+        url.searchParams.append("j", cbContext.getJ().toString());
+        url.searchParams.append("it", cbContext.getMaxIterations().toString());
+        url.searchParams.append("rd", cbContext.getRadius().toString());
+        url.searchParams.append("sc", cbContext.getSampleCount().toString());
+        url.searchParams.append("sk", cbContext.getSkeleton() ? "1" : "0");
+        url.searchParams.append("kc", cbContext.getSkeletonClampFix() ? "1" : "0");
+        url.searchParams.append("cx", cbContext.getCenter()[0].toString());
+        url.searchParams.append("cy", cbContext.getCenter()[1].toString());
+        url.searchParams.append("zm", cbContext.getZoom().toString());
+        window.open(url.href);
+    }
+
+    window.applyPreset = urlString => {
+        const url = new URL(urlString);
+        cbContext.setA(Number.parseFloat(url.searchParams.get("a") ?? cbContext.getA()));
+        cbContext.setB(Number.parseFloat(url.searchParams.get("b") ?? cbContext.getB()));
+        cbContext.setC(Number.parseFloat(url.searchParams.get("c") ?? cbContext.getC()));
+        cbContext.setD(Number.parseFloat(url.searchParams.get("d") ?? cbContext.getD()));
+        cbContext.setE(Number.parseFloat(url.searchParams.get("e") ?? cbContext.getE()));
+        cbContext.setF(Number.parseFloat(url.searchParams.get("f") ?? cbContext.getF()));
+        cbContext.setG(Number.parseFloat(url.searchParams.get("g") ?? cbContext.getG()));
+        cbContext.setH(Number.parseFloat(url.searchParams.get("h") ?? cbContext.getH()));
+        cbContext.setI(Number.parseFloat(url.searchParams.get("i") ?? cbContext.getI()));
+        cbContext.setJ(Number.parseFloat(url.searchParams.get("j") ?? cbContext.getJ()));
+        cbContext.setMaxIterations(Number.parseFloat(url.searchParams.get("it") ?? cbContext.getMaxIterations()));
+        cbContext.setRadius(Number.parseFloat(url.searchParams.get("rd") ?? cbContext.getRadius()));
+        cbContext.setSampleCount(Number.parseFloat(url.searchParams.get("sc") ?? cbContext.getSampleCount()));
+        cbContext.setSkeleton((url.searchParams.get("sk") ?? (cbContext.getSkeleton() ? "1" : "0")) === "1");
+        cbContext.setSkeletonClampFix((url.searchParams.get("kc") ?? (cbContext.getSkeletonClampFix() ? "1" : "0")) === "1");
+        cbContext.setCenter([
+            Number.parseFloat(url.searchParams.get("cx") ?? cbContext.getCenter()[0]),
+            Number.parseFloat(url.searchParams.get("cy") ?? cbContext.getCenter()[1])
+        ]);
+        cbContext.setZoom(Number.parseFloat(url.searchParams.get("zm") ?? cbContext.getZoom()));
+    };
+
+    window.drawToCanvas = cbContext.drawToCanvas;
+
+    window.applyPreset(window.location.href);
     cbContext.drawToCanvas();
 
-    setupNumberInput("canvas-size-x", () => canvas.width, value => { canvas.width = Math.max(value, 1); cbContext.drawToCanvas(); });
-    setupNumberInput("canvas-size-y", () => canvas.height, value => { canvas.height = Math.max(value, 1); cbContext.drawToCanvas(); });
-    setupNumberInput("maximum-iterations", () => cbContext.getMaxIterations(), value => { cbContext.setMaxIterations(value); cbContext.drawToCanvas(); });
-    setupNumberInput("sample-count", () => cbContext.getSampleCount(), value => { cbContext.setSampleCount(value); cbContext.drawToCanvas(); });
-    setupNumberInput("radius", () => cbContext.getRadius(), value => { cbContext.setRadius(value); cbContext.drawToCanvas(); });
-    setupNumberInput("a", () => cbContext.getA(), value => { cbContext.setA(value); cbContext.drawToCanvas(); });
-    setupNumberInput("b", () => cbContext.getB(), value => { cbContext.setB(value); cbContext.drawToCanvas(); });
-    setupNumberInput("c", () => cbContext.getC(), value => { cbContext.setC(value); cbContext.drawToCanvas(); });
-    setupNumberInput("d", () => cbContext.getD(), value => { cbContext.setD(value); cbContext.drawToCanvas(); });
-    setupNumberInput("e", () => cbContext.getE(), value => { cbContext.setE(value); cbContext.drawToCanvas(); });
-    setupNumberInput("f", () => cbContext.getF(), value => { cbContext.setF(value); cbContext.drawToCanvas(); }); 
-    setupNumberInput("g", () => cbContext.getG(), value => { cbContext.setG(value); cbContext.drawToCanvas(); }); 
-    setupNumberInput("h", () => cbContext.getH(), value => { cbContext.setH(value); cbContext.drawToCanvas(); }); 
-    setupNumberInput("i", () => cbContext.getI(), value => { cbContext.setI(value); cbContext.drawToCanvas(); }); 
-    setupNumberInput("j", () => cbContext.getJ(), value => { cbContext.setJ(value); cbContext.drawToCanvas(); });
-    setupBoolButton("skeleton", () => cbContext.getSkeleton(), value => { cbContext.setSkeleton(value); cbContext.drawToCanvas(); });
-    setupBoolButton("skeleton-clamp-fix", () => cbContext.getSkeletonClampFix(), value => { cbContext.getSkeletonClampFix(value); cbContext.drawToCanvas(); });
+    setupNumberInput("canvas-size-x", () => canvas.width, value => { canvas.width = Math.max(value, 1); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+    setupNumberInput("canvas-size-y", () => canvas.height, value => { canvas.height = Math.max(value, 1); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+    setupNumberInput("maximum-iterations", () => cbContext.getMaxIterations(), value => { cbContext.setMaxIterations(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+    setupNumberInput("sample-count", () => cbContext.getSampleCount(), value => { cbContext.setSampleCount(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+    setupNumberInput("radius", () => cbContext.getRadius(), value => { cbContext.setRadius(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+    setupNumberInput("a", () => cbContext.getA(), value => { cbContext.setA(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+    setupNumberInput("b", () => cbContext.getB(), value => { cbContext.setB(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+    setupNumberInput("c", () => cbContext.getC(), value => { cbContext.setC(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+    setupNumberInput("d", () => cbContext.getD(), value => { cbContext.setD(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+    setupNumberInput("e", () => cbContext.getE(), value => { cbContext.setE(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+    setupNumberInput("f", () => cbContext.getF(), value => { cbContext.setF(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } }); 
+    setupNumberInput("g", () => cbContext.getG(), value => { cbContext.setG(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } }); 
+    setupNumberInput("h", () => cbContext.getH(), value => { cbContext.setH(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } }); 
+    setupNumberInput("i", () => cbContext.getI(), value => { cbContext.setI(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } }); 
+    setupNumberInput("j", () => cbContext.getJ(), value => { cbContext.setJ(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+    setupBoolButton("skeleton", () => cbContext.getSkeleton(), value => { cbContext.setSkeleton(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+    setupBoolButton("skeleton-clamp-fix", () => cbContext.getSkeletonClampFix(), value => { cbContext.getSkeletonClampFix(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
 
     window.cbContext = cbContext;
 
