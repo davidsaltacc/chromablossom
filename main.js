@@ -62,8 +62,8 @@ setupCB(canvas).then(cbContext => {
 
     function updateMouseCoords(evt) {
         const rect = evt.target.getBoundingClientRect();
-        mousePos[0] = (2 * (evt.clientX - rect.left) - canvas.clientWidth) / Math.min(canvas.clientWidth, canvas.clientHeight);
-        mousePos[1] = -(2 * (evt.clientY - rect.top) - canvas.clientHeight) / Math.min(canvas.clientWidth, canvas.clientHeight);
+        mousePos[0] = (2 * (evt.clientX - rect.left) - canvas.clientWidth) / canvas.clientWidth;
+        mousePos[1] = -(2 * (evt.clientY - rect.top) - canvas.clientHeight) / canvas.clientHeight;
         mousePos[0] = mousePos[0] / cbContext.getZoom() + cbContext.getCenter()[0];
         mousePos[1] = mousePos[1] / cbContext.getZoom() + cbContext.getCenter()[1];
     }
