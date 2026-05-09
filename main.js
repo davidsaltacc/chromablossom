@@ -41,6 +41,20 @@ function setupBoolButton(id, getter, setter) {
 
 const canvas = document.querySelector("#canvas");
 
+window.toggleCanvasVisibility = () => {
+    if (canvas.style.display !== "none") {
+        canvas.style.display = "none";
+        document.querySelector("#save-draft-button").style.display = "none";
+        document.querySelector("#toggle-canvas-button").classList.remove("canvas-is-visible");
+        return false;
+    } else {
+        canvas.style.display = "";
+        document.querySelector("#save-draft-button").style.display = "";
+        document.querySelector("#toggle-canvas-button").classList.add("canvas-is-visible");
+        return true;
+    }
+}
+
 setupCB(canvas).then(cbContext => {
 
     var mousePos = [ 0, 0 ];
@@ -95,9 +109,19 @@ setupCB(canvas).then(cbContext => {
 
     canvas.onwheel = onZoom;
     canvas.onmousedown = mouseDown;
-    canvas.onmouseup = mouseUp;
+    document.onmouseup = mouseUp;
     canvas.onmousemove = mouseMove;
     canvas.oncontextmenu = evt => evt.preventDefault();
+
+    window.saveDraft = () => {
+        cbContext.drawToCanvas();
+        var data = canvas.toDataURL("image/png");
+        var a = document.createElement("a");
+        a.href = data;
+        a.download = "chromatic.blossom.png";
+        a.click();
+        a.remove();
+    }
 
     cbContext.drawToCanvas();
 
