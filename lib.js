@@ -39,10 +39,13 @@ async function setupCB(canvas) {
         alert("Lost contact to your GPU. Please reload this page, and if neccessary, restart your browser. In rare cases, if your screen keeps flickering or other issues occur, you may need to reboot fully.");
     });
 
-    const format = navigator.gpu.getPreferredCanvasFormat();
+    const format = "rgba8unorm";
 
-    const shaderText = await (await fetch("shader.wgsl")).text();
+    const shaderText = await (await fetch("main.wgsl")).text();
     const shaderModule = device.createShaderModule({ code: shaderText });
+    
+    const lanczosShaderText = await (await fetch("lanczos.wgsl")).text();
+    const lanczosShaderModule = device.createShaderModule({ code: lanczosShaderText });
 
     const pipeline = await device.createRenderPipelineAsync({
         layout: device.createPipelineLayout({ bindGroupLayouts: [
@@ -51,7 +54,7 @@ async function setupCB(canvas) {
                     {
                         binding: 0,
                         visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-                        buffer: {},
+                        buffer: {}
                     }
                 ]
             })
@@ -68,6 +71,70 @@ async function setupCB(canvas) {
         primitive: {
             topology: "triangle-strip",
         }
+    });
+
+    const pipelineFloat16 = await device.createRenderPipelineAsync({
+        layout: device.createPipelineLayout({ bindGroupLayouts: [
+            device.createBindGroupLayout({
+                entries: [
+                    {
+                        binding: 0,
+                        visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                        buffer: {}
+                    }
+                ]
+            })
+        ]}),
+        vertex: {
+            module: shaderModule,
+            entryPoint: "vertex",
+        },
+        fragment: {
+            module: shaderModule,
+            entryPoint: "fragment",
+            targets: [{ format: "rgba16float" }],
+        },
+        primitive: {
+            topology: "triangle-strip",
+        }
+    });
+
+    const lanczosPipeline = await device.createRenderPipelineAsync({
+        layout: device.createPipelineLayout({ bindGroupLayouts: [
+            device.createBindGroupLayout({
+                entries: [
+                    {
+                        binding: 0,
+                        visibility: GPUShaderStage.FRAGMENT,
+                        texture: {}
+                    },
+                    {
+                        binding: 1,
+                        visibility: GPUShaderStage.FRAGMENT,
+                        sampler: {}
+                    }
+                ]
+            })
+        ]}),
+        vertex: {
+            module: lanczosShaderModule,
+            entryPoint: "vertex"
+        },
+        fragment: {
+            module: lanczosShaderModule,
+            entryPoint: "fragment",
+            targets: [{
+                format
+            }]
+        },
+        primitive: {
+            topology: "triangle-strip",
+        }
+    });
+
+    const lanczosSampler = device.createSampler({
+        magFilter: "linear",
+        minFilter: "linear"
     });
 
     const uniformBuffer = device.createBuffer({
@@ -111,13 +178,13 @@ async function setupCB(canvas) {
         alphaMode: "opaque",
     });
 
-    const drawToCanvas = () => {
+    const getUniformBuffer = size => {
 
         const arrayBuffer = new ArrayBuffer(uniformBuffer.size);
 
         new Float32Array(arrayBuffer, 0).set([
-            canvas.clientWidth, 
-            canvas.clientHeight,
+            size[0],
+            size[1],
             values.center[0],
             values.center[1],
             values.zoom,
@@ -143,7 +210,13 @@ async function setupCB(canvas) {
             )
         ]);
 
-        device.queue.writeBuffer(uniformBuffer, 0, arrayBuffer);
+        return arrayBuffer;
+
+    }
+
+    const drawToCanvas = () => {
+
+        device.queue.writeBuffer(uniformBuffer, 0, getUniformBuffer([ canvas.clientWidth, canvas.clientHeight ]));
 
         const encoder = device.createCommandEncoder();
         const renderPass = encoder.beginRenderPass({
@@ -164,9 +237,200 @@ async function setupCB(canvas) {
 
     }
 
+    const renderHighQualityExport = async (size, ssaa, chunkCount) => {
+
+        function drawToTexture(texture, size, center, zoom, useFloat16Pipeline) { 
+
+            const arrayBuffer = getUniformBuffer(size);
+
+            new Float32Array(arrayBuffer).set([ 
+                center[0],
+                center[1],
+                zoom
+            ], 2);
+
+            const encoder = device.createCommandEncoder();
+            const renderPass = encoder.beginRenderPass({
+                colorAttachments: [{
+                    view: texture.createView(),
+                    loadOp: "clear",
+                    clearValue: [0, 0, 0, 0],
+                    storeOp: "store"
+                }]
+            });
+
+            renderPass.setPipeline(useFloat16Pipeline ? pipelineFloat16 : pipeline);
+            renderPass.setBindGroup(0, bindGroup);
+            renderPass.draw(4);
+            renderPass.end();
+
+            device.queue.submit([ encoder.finish() ]);
+
+        }
+
+        function downscaleLanczos2x(texture) {
+
+            const lanczosFinalTexture = device.createTexture({
+                size: [ Math.floor(texture.height / 2), Math.floor(texture.width / 2) ],
+                format,
+                usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_SRC
+            });
+        
+            const lanczosBindGroup = device.createBindGroup({ // re-doing this each time definitely isn't the best solution, but like, what if the input texture size changes
+                layout: lanczosPipeline.getBindGroupLayout(0),
+                entries: [
+                    {
+                        binding: 0,
+                        resource: texture.createView()
+                    },
+                    {
+                        binding: 1,
+                        resource: lanczosSampler
+                    }
+                ]
+            });
+
+            const encoder = device.createCommandEncoder();
+            const renderPass = encoder.beginRenderPass({
+                colorAttachments: [{
+                    view: lanczosFinalTexture.createView(),
+                    loadOp: "clear",
+                    storeOp: "store"
+                }]
+            });
+
+            renderPass.setPipeline(lanczosPipeline);
+            renderPass.setBindGroup(0, lanczosBindGroup);
+            renderPass.draw(4);
+            renderPass.end();
+
+            device.queue.submit([ encoder.finish() ]);
+
+            return lanczosFinalTexture;
+
+        }
+
+        function draw2xSSAA(size, center, zoom) {
+
+            const bigTexture = device.createTexture({
+                size: [ size[0] * 2, size[1] * 2 ],
+                format: "rgba16float",
+                usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_SRC
+            });
+
+            drawToTexture(bigTexture, [ size[0] * 2, size[1] * 2 ], center, zoom, true);
+            return downscaleLanczos2x(bigTexture);
+
+        }
+
+        async function gpuTextureToUint8Array(texture, size) { // TODO note in ui that if width is multiple of 64 things may be a bit faster
+
+            const unpaddedBytesPerRow = size[0] * 4;
+            const paddedBytesPerRow = Math.ceil(unpaddedBytesPerRow / 256) * 256;
+
+            const buffer = device.createBuffer({
+                size: paddedBytesPerRow * size[1] * 4,
+                usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ
+            });
+
+            const encoder = device.createCommandEncoder();
+
+            encoder.copyTextureToBuffer(
+                {
+                    texture
+                },
+                {
+                    buffer,
+                    bytesPerRow: paddedBytesPerRow,
+                    rowsPerImage: size[1]
+                },
+                {
+                    width: size[0],
+                    height: size[1],
+                    depthOrArrayLayers: 1
+                }
+            );
+   
+            device.queue.submit([ encoder.finish() ]);
+
+            await buffer.mapAsync(GPUMapMode.READ);
+
+            const uint8 = new Uint8Array(buffer.getMappedRange());
+
+            const withoutPadding = new Uint8Array(size[0] * size[1] * 4);
+
+            for (let y = 0; y < size[1]; y++) {
+                const srcOffset = y * paddedBytesPerRow;
+                const dstOffset = y * size[0] * 4;
+
+                withoutPadding.set(
+                    uint8.subarray(
+                        srcOffset,
+                        srcOffset + size[0] * 4
+                    ),
+                    dstOffset
+                );
+            }
+
+            buffer.unmap();
+
+            return withoutPadding;
+
+        }
+
+        // --- start placeholder, chunking functionality still not present ---
+        
+        let texture;
+        if (ssaa) {
+            texture = draw2xSSAA(size, values.center, values.zoom);
+        } else {
+            texture = device.createTexture({
+                size,
+                format,
+                usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_SRC
+            });
+            drawToTexture(texture, size, values.center, values.zoom);
+        }
+        
+        const uint8 = await gpuTextureToUint8Array(texture, size);
+        const canvas2 = document.createElement("canvas");
+        canvas2.width = size[0];
+        canvas2.height = size[1];
+        const ctx = canvas2.getContext("2d");
+        const imageData = new ImageData(
+            new Uint8ClampedArray(uint8),
+            size[0],
+            size[1]
+        );
+        ctx.putImageData(imageData, 0, 0);
+        return canvas2.toDataURL("image/png");
+
+        // to test just paste this in console
+        /*
+
+        var a = document.createElement("a");
+        a.href = await cbContext.renderExport([2000, 2000], false, false);
+        a.download = "chromatic.blossom.png";
+        a.click();
+        a.remove();
+
+        to test ssaa
+
+        var a = document.createElement("a");
+        a.href = await cbContext.renderExport([1000, 1000], true, false);
+        a.download = "chromatic.blossom.png";
+        a.click();
+        a.remove();
+
+
+        */
+
+    };
+
     return {
 
         drawToCanvas,
+        renderExport: renderHighQualityExport,
 
         setCenter: center => { if (!(center instanceof Array) || center.length !== 2 || !Number.isFinite(center[0]) || !Number.isFinite(center[1])) { throw new Error("center must be an array of two finite values"); } values.center = center; },
         setZoom: zoom => { if (!Number.isFinite(zoom)) { throw new Error("zoom must be a finite number"); } values.zoom = zoom; },

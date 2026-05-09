@@ -143,4 +143,6 @@ setupCB(canvas).then(cbContext => {
     setupBoolButton("skeleton", () => cbContext.getSkeleton(), value => { cbContext.setSkeleton(value); cbContext.drawToCanvas(); });
     setupBoolButton("skeleton-clamp-fix", () => cbContext.getSkeletonClampFix(), value => { cbContext.getSkeletonClampFix(value); cbContext.drawToCanvas(); });
 
+    window.cbContext = cbContext;
+
 });
