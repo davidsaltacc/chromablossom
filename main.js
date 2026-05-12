@@ -197,6 +197,40 @@ setupCB(canvas).then(cbContext => {
         cbContext.drawToCanvas();
     };
 
+    const exportOptions = {
+        resolution: [ 2000, 2000 ],
+        chunked: true,
+        chunkResolution: [ 500, 500 ],
+        ssaa: true
+    };
+
+    window.exportHiRes = () => {
+        if (confirm("Proceed with render?")) {
+            document.querySelector("#export-overlay").style.display = "";
+            requestAnimationFrame(async () => {
+                const canvas2 = document.createElement("canvas");
+                canvas2.width = exportOptions.resolution[0];
+                canvas2.height = exportOptions.resolution[1];
+                const ctx = canvas2.getContext("2d");
+                ctx.putImageData(await cbContext.renderExport(
+                    exportOptions.resolution,
+                    exportOptions.ssaa,
+                    exportOptions.chunked,
+                    exportOptions.chunkResolution
+                ), 0, 0);
+                const dataUrl = canvas2.toDataURL("image/png");
+                var a = document.createElement("a");
+                a.href = dataUrl;
+                a.download = "chromatic.blossom.png";
+                a.click();
+                a.remove();
+                document.querySelector("#export-overlay").style.display = "none";
+            });
+        }
+    };
+
+    document.querySelector("#export-overlay").style.display = "none";
+
     window.drawToCanvas = cbContext.drawToCanvas;
 
     window.applyPreset(window.location.href);
@@ -220,6 +254,12 @@ setupCB(canvas).then(cbContext => {
         setupNumberInput("j", () => cbContext.getJ(), value => { cbContext.setJ(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
         setupBoolButton("skeleton", () => cbContext.getSkeleton(), value => { cbContext.setSkeleton(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
         setupBoolButton("skeleton-clamp-fix", () => cbContext.getSkeletonClampFix(), value => { cbContext.setSkeletonClampFix(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+        setupBoolButton("chunked", () => exportOptions.chunked, value => { exportOptions.chunked = value });
+        setupBoolButton("ssaa", () => exportOptions.ssaa, value => { exportOptions.ssaa = value });
+        setupNumberInput("final-export-size-x", () => exportOptions.resolution[0], value => { exportOptions.resolution[0] = Math.max(value, 1); });
+        setupNumberInput("final-export-size-y", () => exportOptions.resolution[1], value => { exportOptions.resolution[1] = Math.max(value, 1); });
+        setupNumberInput("chunk-size-x", () => exportOptions.chunkResolution[0], value => { exportOptions.chunkResolution[0] = Math.max(value, 1); });
+        setupNumberInput("chunk-size-y", () => exportOptions.chunkResolution[1], value => { exportOptions.chunkResolution[1] = Math.max(value, 1); });
     };
 
     window.updateUi();

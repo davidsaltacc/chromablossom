@@ -224,7 +224,67 @@
     </div>
     <div class="outline export-container">
         <h2>render.export</h2>
-        <p>still todo, <!-- TODO --> some things are done but nothing in place for full exporting functionality</p>
+        <p>Render and export a high-quality image based on the preview inside the canvas. Configure the options as you wish, the export button is at the bottom. Expect the process to take a bit, especially for chunked high-resolution renders. </p>
+        <div class="outline">
+            <h3>final.resolution</h3>
+            <p>The resolution the final image will be exported at. Can be any size, although chunking is advised (even required) at big scales. Size limit with chunks is currently the browser canvas size, although for extremely high resolutions (~5 digits), you should turn off chunk merging, and merge them yourself. What's that? There's no option for that? Too bad, I haven't implemented that yet.</p>
+            <div class="outline number-input-container two-number-input">
+                <p>x:</p>
+                <input id="number-input-final-export-size-x" type="number" title="final.size.x" step="1" />
+                <button onclick="numberButton('final-export-size-x', 100);">+100</button> 
+                <button onclick="numberButton('final-export-size-x', 10);">+10</button> 
+                <button onclick="numberButton('final-export-size-x', 1);">+1</button> 
+                <button onclick="numberButton('final-export-size-x', -1);">-1</button> 
+                <button onclick="numberButton('final-export-size-x', -10);">-10</button>
+                <button onclick="numberButton('final-export-size-x', -100);">-100</button>
+                <p>y:</p>
+                <input id="number-input-final-export-size-y" type="number" title="final.size.y" step="1" />
+                <button onclick="numberButton('final-export-size-y', 100);">+100</button> 
+                <button onclick="numberButton('final-export-size-y', 10);">+10</button> 
+                <button onclick="numberButton('final-export-size-y', 1);">+1</button> 
+                <button onclick="numberButton('final-export-size-y', -1);">-1</button> 
+                <button onclick="numberButton('final-export-size-y', -10);">-10</button>
+                <button onclick="numberButton('final-export-size-y', -100);">-100</button>
+            </div>
+            <h3>chunked.render</h3>
+            <p>Whether to do a chunked render. If off, everything will be rendered in a single pass. If on, rendering will be split into smaller chunks.</p>
+            <div class="outline boolean-input-container">
+                <button id="bool-button-chunked-on">Toggle on</button>
+                <button id="bool-button-chunked-off">Toggle off</button>
+            </div>
+            <h3>chunk.resolution</h3>
+            <p>Only does something if chunked rendering is enabled. The resolution of the individual chunks. Final resolution must be divisible by chunk resolution. How else do you expect me to fit the chunks inside the image properly?</p>
+            <div class="outline number-input-container two-number-input">
+                <p>x:</p>
+                <input id="number-input-chunk-size-x" type="number" title="chunk.size.x" step="1" />
+                <button onclick="numberButton('chunk-size-x', 100);">+100</button> 
+                <button onclick="numberButton('chunk-size-x', 10);">+10</button> 
+                <button onclick="numberButton('chunk-size-x', 1);">+1</button> 
+                <button onclick="numberButton('chunk-size-x', -1);">-1</button> 
+                <button onclick="numberButton('chunk-size-x', -10);">-10</button>
+                <button onclick="numberButton('chunk-size-x', -100);">-100</button>
+                <p>y:</p>
+                <input id="number-input-chunk-size-y" type="number" title="chunk.size.y" step="1" />
+                <button onclick="numberButton('chunk-size-y', 100);">+100</button> 
+                <button onclick="numberButton('chunk-size-y', 10);">+10</button> 
+                <button onclick="numberButton('chunk-size-y', 1);">+1</button> 
+                <button onclick="numberButton('chunk-size-y', -1);">-1</button> 
+                <button onclick="numberButton('chunk-size-y', -10);">-10</button>
+                <button onclick="numberButton('chunk-size-y', -100);">-100</button>
+            </div>
+            <h3>2x.lanczos.ssaa</h3>
+            <p>Enable 2x Supersampling-Antialiasing, using the lanczos downsampling filter. Drastically increases image quality, reduces noise and artifacts. Has to render everything at 2x scale, so think about halvening your chunk size if you want roughly the same computational load.</p>
+            <div class="outline boolean-input-container">
+                <button id="bool-button-ssaa-on">Toggle on</button>
+                <button id="bool-button-ssaa-off">Toggle off</button>
+            </div>
+            <h3>export.here</h3>
+            <button id="export-button" onclick="exportHiRes();">Export</button>
+        </div>
+    </div>
+    <div id="export-overlay">
+        <h2>Please wait...</h2>
+        <noscript>Please turn on javascript for this website to work.</noscript>
     </div>
 </body>
 </html>
