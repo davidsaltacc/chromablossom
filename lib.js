@@ -98,14 +98,16 @@ async function setupCB(canvas) {
         fragment: {
             module: shaderModule,
             entryPoint: "fragment",
-            targets: [{ format: "rgba16float" }],
+            targets: [{ 
+                format: "rgba16float" 
+            }]
         },
         primitive: {
             topology: "triangle-strip",
         }
     });
 
-    const lanczosPipeline = await device.createRenderPipelineAsync({
+    const lanczosPipelineH = await device.createRenderPipelineAsync({
         layout: device.createPipelineLayout({ bindGroupLayouts: [
             device.createBindGroupLayout({
                 entries: [
@@ -118,6 +120,49 @@ async function setupCB(canvas) {
                         binding: 1,
                         visibility: GPUShaderStage.FRAGMENT,
                         sampler: {}
+                    },
+                    {
+                        binding: 2,
+                        visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                        buffer: {}
+                    }
+                ]
+            })
+        ]}),
+        vertex: {
+            module: lanczosShaderModule,
+            entryPoint: "vertex"
+        },
+        fragment: {
+            module: lanczosShaderModule,
+            entryPoint: "fragment",
+            targets: [{
+                format: "rgba16float"
+            }]
+        },
+        primitive: {
+            topology: "triangle-strip",
+        }
+    });
+
+    const lanczosPipelineV = await device.createRenderPipelineAsync({ // stay in rgba16float for the H pass, for the V pass (final) convert to uint 
+        layout: device.createPipelineLayout({ bindGroupLayouts: [
+            device.createBindGroupLayout({
+                entries: [
+                    {
+                        binding: 0,
+                        visibility: GPUShaderStage.FRAGMENT,
+                        texture: {}
+                    },
+                    {
+                        binding: 1,
+                        visibility: GPUShaderStage.FRAGMENT,
+                        sampler: {}
+                    },
+                    {
+                        binding: 2,
+                        visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                        buffer: {}
                     }
                 ]
             })
@@ -139,8 +184,8 @@ async function setupCB(canvas) {
     });
 
     const lanczosSampler = device.createSampler({
-        magFilter: "linear",
-        minFilter: "linear"
+        magFilter: "nearest",
+        minFilter: "nearest"
     });
 
     const uniformBuffer = device.createBuffer({
@@ -163,7 +208,14 @@ async function setupCB(canvas) {
             Uint32Array.BYTES_PER_ELEMENT      + // sampleCount: u32
             Uint32Array.BYTES_PER_ELEMENT        // flags: u32
         ) / 8) * 8,
-        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+    });
+
+    const lanczosUniformBuffer = device.createBuffer({
+        size: Math.ceil((
+            Uint32Array.BYTES_PER_ELEMENT // isHPass: u32
+        ) / 8) * 8,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
     });
 
     const bindGroup = device.createBindGroup({
@@ -255,6 +307,8 @@ async function setupCB(canvas) {
                 zoom
             ], 2);
 
+            device.queue.writeBuffer(uniformBuffer, 0, arrayBuffer);
+
             const encoder = device.createCommandEncoder();
             const renderPass = encoder.beginRenderPass({
                 colorAttachments: [{
@@ -276,14 +330,27 @@ async function setupCB(canvas) {
 
         function downscaleLanczos2x(texture) {
 
+            const lanczosIntermediateTexture = device.createTexture({
+                size: [ Math.floor(texture.width / 2), texture.height ],
+                format: "rgba16float",
+                usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_SRC
+            });
+
             const lanczosFinalTexture = device.createTexture({
-                size: [ Math.floor(texture.height / 2), Math.floor(texture.width / 2) ],
+                size: [ Math.floor(texture.width / 2), Math.floor(texture.height / 2) ],
                 format,
                 usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_SRC
             });
+
+            // --- h pass ---
+
+            let arrayBuffer = new ArrayBuffer(lanczosUniformBuffer.size);
+            new Uint32Array(arrayBuffer, 0 * Uint32Array.BYTES_PER_ELEMENT).set([
+                1 // isHPass
+            ]);
         
-            const lanczosBindGroup = device.createBindGroup({ // re-doing this each time definitely isn't the best solution, but like, what if the input texture size changes
-                layout: lanczosPipeline.getBindGroupLayout(0),
+            let lanczosBindGroup = device.createBindGroup({ // re-doing this each time definitely isn't the best solution, but like, what if the input texture size changes
+                layout: lanczosPipelineH.getBindGroupLayout(0),
                 entries: [
                     {
                         binding: 0,
@@ -292,12 +359,61 @@ async function setupCB(canvas) {
                     {
                         binding: 1,
                         resource: lanczosSampler
+                    },
+                    {
+                        binding: 2,
+                        resource: lanczosUniformBuffer
                     }
                 ]
             });
 
-            const encoder = device.createCommandEncoder();
-            const renderPass = encoder.beginRenderPass({
+            device.queue.writeBuffer(lanczosUniformBuffer, 0, arrayBuffer);
+
+            let encoder = device.createCommandEncoder();
+            let renderPass = encoder.beginRenderPass({
+                colorAttachments: [{
+                    view: lanczosIntermediateTexture.createView(),
+                    loadOp: "clear",
+                    storeOp: "store"
+                }]
+            });
+
+            renderPass.setPipeline(lanczosPipelineH);
+            renderPass.setBindGroup(0, lanczosBindGroup);
+            renderPass.draw(4);
+            renderPass.end();
+
+            device.queue.submit([ encoder.finish() ]);
+
+            // --- v pass ---
+            
+            arrayBuffer = new ArrayBuffer(lanczosUniformBuffer.size);
+            new Uint32Array(arrayBuffer, 0 * Uint32Array.BYTES_PER_ELEMENT).set([
+                0 // isHPass
+            ]);
+        
+            lanczosBindGroup = device.createBindGroup({ // re-doing this each time definitely isn't the best solution, but like, what if the input texture size changes
+                layout: lanczosPipelineV.getBindGroupLayout(0),
+                entries: [
+                    {
+                        binding: 0,
+                        resource: lanczosIntermediateTexture.createView()
+                    },
+                    {
+                        binding: 1,
+                        resource: lanczosSampler
+                    },
+                    {
+                        binding: 2,
+                        resource: lanczosUniformBuffer
+                    }
+                ]
+            });
+
+            device.queue.writeBuffer(lanczosUniformBuffer, 0, arrayBuffer);
+
+            encoder = device.createCommandEncoder();
+            renderPass = encoder.beginRenderPass({
                 colorAttachments: [{
                     view: lanczosFinalTexture.createView(),
                     loadOp: "clear",
@@ -305,7 +421,7 @@ async function setupCB(canvas) {
                 }]
             });
 
-            renderPass.setPipeline(lanczosPipeline);
+            renderPass.setPipeline(lanczosPipelineV);
             renderPass.setBindGroup(0, lanczosBindGroup);
             renderPass.draw(4);
             renderPass.end();
