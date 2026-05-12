@@ -71,13 +71,14 @@ fn fragment(input: VertexOutput) -> @location(0) vec4<f32> {
 
 	var sampleCount: u32 = uniforms.sampleCount;
 
-	var rc: vec2<f32> = input.fragmentPosition / zoom + center;
+	var rc: vec2<f32> = input.fragmentPosition / zoom;
 	var ratio = uniforms.canvasDimensions.x / uniforms.canvasDimensions.y;
 	if (ratio > 1) {
 		rc.x *= ratio;
 	} else {
 		rc.y /= ratio;
 	}
+	rc += center;
     
 	var color: vec3<f32> = vec3<f32>(0., 0., 0.);  
 	var rr: f32 = 0.; 
