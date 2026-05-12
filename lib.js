@@ -295,7 +295,7 @@ async function setupCB(canvas) {
 
     }
 
-    const renderHighQualityExport = async (size, ssaa, chunkCount) => {
+    const renderHighQualityExport = async (size, ssaa, chunked, chunkSize) => {
 
         function drawToTexture(texture, size, center, zoom, useFloat16Pipeline) { 
 
@@ -445,7 +445,7 @@ async function setupCB(canvas) {
 
         }
 
-        async function gpuTextureToUint8Array(texture, size) { // TODO note in ui that if width is multiple of 64 things may be a bit faster
+        async function gpuTextureToUint8Array(texture, size) { // TODO note in ui that if width is multiple of 64 (if chunked, then chunk width!) things may be a bit faster
 
             const unpaddedBytesPerRow = size[0] * 4;
             const paddedBytesPerRow = Math.ceil(unpaddedBytesPerRow / 256) * 256;
@@ -500,52 +500,30 @@ async function setupCB(canvas) {
 
         }
 
-        // --- start placeholder, chunking functionality still not present ---
-        
-        let texture;
-        if (ssaa) {
-            texture = draw2xSSAA(size, values.center, values.zoom);
+        // --- render and export ---
+
+        if (!chunked) {
+            let texture;
+            if (ssaa) {
+                texture = draw2xSSAA(size, values.center, values.zoom);
+            } else {
+                texture = device.createTexture({
+                    size,
+                    format,
+                    usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_SRC
+                });
+                drawToTexture(texture, size, values.center, values.zoom);
+            }
+            
+            const uint8 = await gpuTextureToUint8Array(texture, size);
+            return new ImageData(
+                new Uint8ClampedArray(uint8),
+                size[0],
+                size[1]
+            );
         } else {
-            texture = device.createTexture({
-                size,
-                format,
-                usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_SRC
-            });
-            drawToTexture(texture, size, values.center, values.zoom);
+            // TODO chunked rendering
         }
-        
-        const uint8 = await gpuTextureToUint8Array(texture, size);
-        const canvas2 = document.createElement("canvas");
-        canvas2.width = size[0];
-        canvas2.height = size[1];
-        const ctx = canvas2.getContext("2d");
-        const imageData = new ImageData(
-            new Uint8ClampedArray(uint8),
-            size[0],
-            size[1]
-        );
-        ctx.putImageData(imageData, 0, 0);
-        return canvas2.toDataURL("image/png");
-
-        // to test just paste this in console
-        /*
-
-        var a = document.createElement("a");
-        a.href = await cbContext.renderExport([2000, 2000], false, false);
-        a.download = "chromatic.blossom.png";
-        a.click();
-        a.remove();
-
-        to test ssaa
-
-        var a = document.createElement("a");
-        a.href = await cbContext.renderExport([1000, 1000], true, false);
-        a.download = "chromatic.blossom.png";
-        a.click();
-        a.remove();
-
-
-        */
 
     };
 
