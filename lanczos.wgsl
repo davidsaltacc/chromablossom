@@ -18,7 +18,7 @@ fn vertex(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4f {
     return vec4f(positions[vertexIndex], 0.0, 1.0);
 }
 
-fn lanczos(s1: f32, s2: f32, s3: f32, s4: f32, s5: f32, s6: f32, s7: f32, s8: f32, s9: f32, s10: f32, s11: f32, s12: f32) -> f32 {
+fn lanczos(s1: f32, s2: f32, s3: f32, s4: f32, s5: f32, s6: f32, s7: f32, s8: f32, s9: f32, s10: f32, s11: f32, s12: f32) -> f32 { // TODO maybe add a toggle for lanczos-3 and lanczos-2? difference may be minor but why not have the option to choose
 	return // yes, i learned how to compile these values myself. i'm proud of myself
 		(s1 + s12) * 0.02817796919561158 + 
 		(s2 + s11) * 0.03922444625319011 + 
