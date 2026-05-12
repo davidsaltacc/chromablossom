@@ -206,6 +206,9 @@ async function setupCB(canvas) {
             Uint32Array.BYTES_PER_ELEMENT      + // maxIterations: u32
             Uint32Array.BYTES_PER_ELEMENT      + // radius: u32
             Uint32Array.BYTES_PER_ELEMENT      + // sampleCount: u32
+            2 * Uint32Array.BYTES_PER_ELEMENT  + // chunkerPos: vec2<u32>
+            2 * Uint32Array.BYTES_PER_ELEMENT  + // chunkSize: vec2<u32>
+            2 * Uint32Array.BYTES_PER_ELEMENT  + // finalSize: vec2<u32>
             Uint32Array.BYTES_PER_ELEMENT        // flags: u32
         ) / 8) * 8,
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
@@ -236,7 +239,7 @@ async function setupCB(canvas) {
         alphaMode: "opaque",
     });
 
-    const getUniformBuffer = size => {
+    const getUniformBuffer = (size, chunked, chunkerPos, chunkSize, finalSize) => {
 
         const arrayBuffer = new ArrayBuffer(uniformBuffer.size);
 
@@ -262,7 +265,14 @@ async function setupCB(canvas) {
             values.maxIterations,
             values.radius,
             values.sampleCount,
+            chunked ? chunkerPos[0] : 0,
+            chunked ? chunkerPos[1] : 0,
+            chunked ? chunkSize[0] : 0,
+            chunked ? chunkSize[1] : 0,
+            chunked ? finalSize[0] : 0,
+            chunked ? finalSize[1] : 0,
             (
+                ((chunked ? 1 : 0) << 2) | 
                 ((values.skeleton ? 1 : 0) << 1) | 
                 (values.skeletonClampFix ? 1 : 0)
             )
@@ -297,9 +307,14 @@ async function setupCB(canvas) {
 
     const renderHighQualityExport = async (size, ssaa, chunked, chunkSize) => {
 
-        function drawToTexture(texture, size, center, zoom, useFloat16Pipeline) { 
+        size[0] = Math.floor(size[0]);
+        size[1] = Math.floor(size[1]);
+        chunkSize[0] = Math.floor(chunkSize[0]);
+        chunkSize[1] = Math.floor(chunkSize[1]);
 
-            const arrayBuffer = getUniformBuffer(size);
+        function drawToTexture(texture, size, center, zoom, useFloat16Pipeline, chunked, chunkerPos, chunkedSize, finalSize) { 
+
+            const arrayBuffer = getUniformBuffer(size, chunked, chunkerPos, chunkedSize, finalSize);
 
             new Float32Array(arrayBuffer).set([ 
                 center[0],
@@ -432,7 +447,7 @@ async function setupCB(canvas) {
 
         }
 
-        function draw2xSSAA(size, center, zoom) {
+        function draw2xSSAA(size, center, zoom, chunked, chunkerPos, chunkSize, finalSize) {
 
             const bigTexture = device.createTexture({
                 size: [ size[0] * 2, size[1] * 2 ],
@@ -440,7 +455,7 @@ async function setupCB(canvas) {
                 usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_SRC
             });
 
-            drawToTexture(bigTexture, [ size[0] * 2, size[1] * 2 ], center, zoom, true);
+            drawToTexture(bigTexture, [ size[0] * 2, size[1] * 2 ], center, zoom, true, chunked, chunkerPos, chunkSize, finalSize);
             return downscaleLanczos2x(bigTexture);
 
         }
@@ -502,7 +517,11 @@ async function setupCB(canvas) {
 
         // --- render and export ---
 
-        if (!chunked) {
+        if (!chunked || (size[0] === chunkSize[0] && size[1] === chunkSize[1])) {
+            if (size[0] <= 0 || size[1] <= 0) {
+                alert("Export size must be larger than 0 in both dimensions");
+                return null;
+            }
             let texture;
             if (ssaa) {
                 texture = draw2xSSAA(size, values.center, values.zoom);
@@ -522,7 +541,50 @@ async function setupCB(canvas) {
                 size[1]
             );
         } else {
-            // TODO chunked rendering
+            if (size[0] <= 0 || size[1] <= 0 || chunkSize[0] <= 0 || chunkSize[1] <= 0) {
+                alert("Export size and chunk size must each be larger than 0 in both dimensions");
+                return null;
+            }
+            if (size[0] % chunkSize[0] !== 0 || size[1] % chunkSize[1] !== 0) {
+                alert("Export size must be divisible by chunk size");
+                return null;
+            }
+
+            const bigCanvas = document.createElement("canvas");
+            bigCanvas.width = size[0];
+            bigCanvas.height = size[1];
+            const bigContext = bigCanvas.getContext("2d");
+
+            for (var y = 0; y < size[1]; y += chunkSize[1]) {
+                for (var x = 0; x < size[0]; x += chunkSize[0]) {
+
+                    let texture;
+                    if (ssaa) {
+                        texture = draw2xSSAA(chunkSize, values.center, values.zoom, true, [x, y], chunkSize, size);
+                    } else {
+                        texture = device.createTexture({
+                            size: chunkSize,
+                            format,
+                            usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_SRC
+                        });
+                        drawToTexture(texture, chunkSize, values.center, values.zoom, false, true, [x, y], chunkSize, size);
+                    }
+                    
+                    const imageData = new ImageData(
+                        new Uint8ClampedArray(await gpuTextureToUint8Array(texture, chunkSize)),
+                        chunkSize[0],
+                        chunkSize[1]
+                    );
+
+                    bigContext.putImageData(imageData, x, y);
+                }
+            }
+
+            const finalData = bigContext.getImageData(0, 0, size[0], size[1]);
+            bigCanvas.remove();
+
+            return finalData;
+
         }
 
     };

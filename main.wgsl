@@ -21,6 +21,9 @@ struct Uniforms {
 	maxIterations: u32,
     radius: u32,
 	sampleCount: u32,
+	chunkerPos: vec2<u32>,
+	chunkSize: vec2<u32>,
+	finalSize: vec2<u32>,
 	flags: u32
 }
 
@@ -66,19 +69,60 @@ fn fragment(input: VertexOutput) -> @location(0) vec4<f32> {
 	var iterations: u32 = uniforms.maxIterations;
 	var radius: u32 = uniforms.radius;
 
+	var chunked: u32 = (uniforms.flags >> 2) & 1u;
 	var skeleton: u32 = (uniforms.flags >> 1) & 1u;
 	var skeletonClampFix: u32 = uniforms.flags & 1u;
 
 	var sampleCount: u32 = uniforms.sampleCount;
 
-	var rc: vec2<f32> = input.fragmentPosition / zoom;
-	var ratio = uniforms.canvasDimensions.x / uniforms.canvasDimensions.y;
-	if (ratio > 1) {
-		rc.x *= ratio;
+	var rc: vec2<f32> = input.fragmentPosition;
+	var ratio: f32;
+	
+	if (chunked == 1) {
+	 	ratio = f32(uniforms.chunkSize.x) / f32(uniforms.chunkSize.y);
 	} else {
-		rc.y /= ratio;
+	 	ratio = f32(uniforms.canvasDimensions.x) / f32(uniforms.canvasDimensions.y);
+	}
+
+	if (chunked == 1) {
+		var zn: f32;
+		if ((f32(uniforms.finalSize.x) / f32(uniforms.finalSize.y)) > 1) {
+			zn = (zoom * (f32(uniforms.finalSize.y) / f32(uniforms.chunkSize.y)));
+		} else {
+			zn = (zoom * (f32(uniforms.finalSize.x) / f32(uniforms.chunkSize.x)));
+		}
+		if (ratio > 1) {
+			rc.x = rc.x / zn * ratio;
+			rc.y = rc.y / zn;
+		} else {
+			rc.x = rc.x / zn;
+			rc.y = rc.y / zn / ratio;
+		}
+	} else {
+		if (ratio > 1) {
+			rc.x = rc.x / zoom * ratio;
+			rc.y = rc.y / zoom;
+		} else {
+			rc.x = rc.x / zoom;
+			rc.y = rc.y / zoom / ratio;
+		}
 	}
 	rc += center;
+	if (chunked == 1) {
+		var off: vec2<f32> = vec2<f32>(
+			((f32(uniforms.chunkerPos.x) + f32(uniforms.chunkSize.x) / 2.) / f32(uniforms.finalSize.x) * 2. - 1.) / uniforms.zoom,
+            -((f32(uniforms.chunkerPos.y) + f32(uniforms.chunkSize.y) / 2.) / f32(uniforms.finalSize.y) * 2. - 1.) / uniforms.zoom
+		);
+		var ratio2 = (f32(uniforms.finalSize.x) / f32(uniforms.finalSize.y));
+		if (ratio2 > 1) {
+			off.x *= ratio2;
+		} else {
+			off.y /= ratio2;
+		}
+		rc += off;
+	}
+
+	// TODO NON-SQUARE CHUNK SIZES STILL DON'T WORK, THEN THE COMMENTED OUT CODE BELOW (idk what tf i did restore from github ig)
     
 	var color: vec3<f32> = vec3<f32>(0., 0., 0.);  
 	var rr: f32 = 0.; 
@@ -87,7 +131,18 @@ fn fragment(input: VertexOutput) -> @location(0) vec4<f32> {
 		var pos: vec2<f32> = vec2<f32>(
 			rand(rc + f32(sample)),
 			rand(1. + rc + f32(sample))
-		) / zoom / uniforms.canvasDimensions;
+		) / uniforms.zoom / uniforms.canvasDimensions;
+		var zxn = zoom;
+		var zyn = zoom; 
+		//if (chunked == 1) { // TODO
+		//	zxn *= f32(uniforms.finalSize.x) / f32(uniforms.chunkSize.x);
+		//	zyn *= f32(uniforms.finalSize.y) / f32(uniforms.chunkSize.y);
+		//	pos.x = pos.x / zxn / f32(uniforms.chunkSize.x);
+		//	pos.y = pos.y / zyn / f32(uniforms.chunkSize.y);
+		//} else {
+		//	pos.x = pos.x / zxn / f32(uniforms.canvasDimensions.x);
+		//	pos.y = pos.y / zyn / f32(uniforms.canvasDimensions.y);
+		//}
 		pos += rc;
 		var cx: f32 = pos.x;
 		var cy: f32 = -pos.y;
