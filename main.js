@@ -195,7 +195,7 @@ setupCB(canvas).then(cbContext => {
         cbContext.setD(Number.parseFloat((((Math.random() - 0.5) * 2) * 15).toFixed(2)));
         cbContext.setE(Number.parseFloat((((Math.random() - 0.5) * 2) * 10).toFixed(2)));
         cbContext.setF(Number.parseFloat((((Math.random() - 0.5) * 2) * 6).toFixed(2)));
-        cbContext.setG(Number.parseFloat(Math.floor(((Math.random() - 0.5) * 2) * 4) / 2));
+        cbContext.setG(Math.floor(Math.random() * (cbContext.getC())) * (1 / cbContext.getC()));
         cbContext.setH(Number.parseFloat((((Math.random() - 0.5) * 2) * 5).toFixed(2)));
         cbContext.setI(Number.parseFloat((((Math.random() - 0.5) * 2) * 10).toFixed(2)));
         cbContext.setJ(Number.parseFloat((((Math.random() - 0.5) * 2) * 4).toFixed(2)));
