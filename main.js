@@ -234,7 +234,7 @@ setupCB(canvas).then(cbContext => {
                 const encoder = new TextEncoder();
                 const canvasBlob = await new Promise(resolve => canvas2.toBlob(resolve, "image/png"));
                 const urlBlob = new Blob([ encoder.encode("CHROMATIC.BLOSSOM.PRESET::" + window.getPresetLink()) ], { type: "text/plain" });
-                const mergedBlob = new Blob([ canvasBlob, urlBlob ], { type: "image/png" });
+                const mergedBlob = exportOptions.embedPreset ? new Blob([ canvasBlob, urlBlob ], { type: "image/png" }) : canvasBlob;
 
                 const dataUrl = URL.createObjectURL(mergedBlob);
                 var a = document.createElement("a");
