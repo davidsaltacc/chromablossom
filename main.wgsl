@@ -124,7 +124,18 @@ fn fragment(input: VertexOutput) -> @location(0) vec4<f32> {
 		var pos: vec2<f32> = vec2<f32>(
 			rand(rc + f32(sample)),
 			rand(1. + rc + f32(sample))
-		) / zoom / uniforms.canvasDimensions;
+		);
+		if (chunked == 1) {
+			if (ratio <= 1) {
+				pos.x = pos.x / zoom / f32(uniforms.chunkSize.x) * ratio;
+				pos.y = pos.y / zoom / f32(uniforms.chunkSize.y);
+			} else {
+				pos.x = pos.x / zoom / f32(uniforms.chunkSize.x);
+				pos.y = pos.y / zoom / f32(uniforms.chunkSize.y) / ratio;
+			}
+		} else {
+			pos = pos / zoom / uniforms.canvasDimensions;
+		}
 		pos += rc;
 		var cx: f32 = pos.x;
 		var cy: f32 = -pos.y;
