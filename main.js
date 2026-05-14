@@ -254,6 +254,7 @@ setupCB(canvas).then(cbContext => {
 
     document.querySelector("#import-url-button").onclick = () => {
         applyPreset(document.querySelector("#import-url-text").value);
+        window.updateUi();
         cbContext.drawToCanvas();
     };
 
@@ -265,6 +266,7 @@ setupCB(canvas).then(cbContext => {
             var split = content.split("CHROMATIC.BLOSSOM.PRESET::");
             if (split.length >= 2) {
                 window.applyPreset(split[split.length - 1]);
+                window.updateUi();
                 cbContext.drawToCanvas();
             } else {
                 alert("No preset found in image.");
@@ -315,6 +317,7 @@ setupCB(canvas).then(cbContext => {
             evt.dataTransfer.items[0].getAsString(async text => {
                 if (text.startsWith("http")) {
                     window.applyPreset(text);
+                    window.updateUi();
                     cbContext.drawToCanvas();
                 }
             });
