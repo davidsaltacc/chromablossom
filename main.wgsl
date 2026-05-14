@@ -85,44 +85,19 @@ fn fragment(input: VertexOutput) -> @location(0) vec4<f32> {
 	}
 
 	if (chunked == 1) {
-		var zn: f32;
-		if ((f32(uniforms.finalSize.x) / f32(uniforms.finalSize.y)) > 1) {
-			zn = (zoom * (f32(uniforms.finalSize.y) / f32(uniforms.chunkSize.y)));
-		} else {
-			zn = (zoom * (f32(uniforms.finalSize.x) / f32(uniforms.chunkSize.x)));
-		}
-		if (ratio > 1) {
-			rc.x = rc.x / zn * ratio;
-			rc.y = rc.y / zn;
-		} else {
-			rc.x = rc.x / zn;
-			rc.y = rc.y / zn / ratio;
-		}
+		var chunkAmountX = f32(uniforms.finalSize.x) / f32(uniforms.chunkSize.x);
+		var chunkAmountY = f32(uniforms.finalSize.y) / f32(uniforms.chunkSize.y);
+	}
+	
+	if ((ratio > 1 && chunked != 1) || (ratio < 0 && chunked == 1)) {
+		rc.x = rc.x / zoom * ratio;
+		rc.y = rc.y / zoom;
 	} else {
-		if (ratio > 1) {
-			rc.x = rc.x / zoom * ratio;
-			rc.y = rc.y / zoom;
-		} else {
-			rc.x = rc.x / zoom;
-			rc.y = rc.y / zoom / ratio;
-		}
+		rc.x = rc.x / zoom;
+		rc.y = rc.y / zoom / ratio;
 	}
+	
 	rc += center;
-	if (chunked == 1) {
-		var off: vec2<f32> = vec2<f32>(
-			((f32(uniforms.chunkerPos.x) + f32(uniforms.chunkSize.x) / 2.) / f32(uniforms.finalSize.x) * 2. - 1.) / uniforms.zoom,
-            -((f32(uniforms.chunkerPos.y) + f32(uniforms.chunkSize.y) / 2.) / f32(uniforms.finalSize.y) * 2. - 1.) / uniforms.zoom
-		);
-		var ratio2 = (f32(uniforms.finalSize.x) / f32(uniforms.finalSize.y));
-		if (ratio2 > 1) {
-			off.x *= ratio2;
-		} else {
-			off.y /= ratio2;
-		}
-		rc += off;
-	}
-
-	// TODO NON-SQUARE CHUNK SIZES STILL DON'T WORK, THEN THE COMMENTED OUT CODE BELOW (idk what tf i did restore from github ig)
     
 	var color: vec3<f32> = vec3<f32>(0., 0., 0.);  
 	var rr: f32 = 0.; 
@@ -132,17 +107,6 @@ fn fragment(input: VertexOutput) -> @location(0) vec4<f32> {
 			rand(rc + f32(sample)),
 			rand(1. + rc + f32(sample))
 		) / uniforms.zoom / uniforms.canvasDimensions;
-		var zxn = zoom;
-		var zyn = zoom; 
-		//if (chunked == 1) { // TODO
-		//	zxn *= f32(uniforms.finalSize.x) / f32(uniforms.chunkSize.x);
-		//	zyn *= f32(uniforms.finalSize.y) / f32(uniforms.chunkSize.y);
-		//	pos.x = pos.x / zxn / f32(uniforms.chunkSize.x);
-		//	pos.y = pos.y / zyn / f32(uniforms.chunkSize.y);
-		//} else {
-		//	pos.x = pos.x / zxn / f32(uniforms.canvasDimensions.x);
-		//	pos.y = pos.y / zyn / f32(uniforms.canvasDimensions.y);
-		//}
 		pos += rc;
 		var cx: f32 = pos.x;
 		var cy: f32 = -pos.y;
