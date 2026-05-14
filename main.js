@@ -212,12 +212,17 @@ setupCB(canvas).then(cbContext => {
                 canvas2.width = exportOptions.resolution[0];
                 canvas2.height = exportOptions.resolution[1];
                 const ctx = canvas2.getContext("2d");
-                ctx.putImageData(await cbContext.renderExport(
+                const data = await cbContext.renderExport(
                     exportOptions.resolution,
                     exportOptions.ssaa,
                     exportOptions.chunked,
                     exportOptions.chunkResolution
-                ), 0, 0);
+                );
+                if (data == null) {
+                    document.querySelector("#export-overlay").style.display = "none";
+                    return;
+                }
+                ctx.putImageData(data, 0, 0);
                 const dataUrl = canvas2.toDataURL("image/png");
                 var a = document.createElement("a");
                 a.href = dataUrl;
