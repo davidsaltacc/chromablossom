@@ -43,6 +43,8 @@ function setupBoolButton(id, getter, setter) {
 
 const canvas = document.querySelector("#canvas");
 
+document.querySelector("#drag-overlay").style.display = "none";
+
 window.toggleCanvasVisibility = () => {
     if (canvas.style.display !== "none") {
         canvas.style.display = "none";
@@ -123,12 +125,12 @@ setupCB(canvas).then(cbContext => {
         var data = canvas.toDataURL("image/png");
         var a = document.createElement("a");
         a.href = data;
-        a.download = "chromatic.blossom.png";
+        a.download = "chromatic.blossom.preview.png";
         a.click();
         a.remove();
     }
 
-    window.openPresetLink = () => {
+    window.getPresetLink = () => {
         const url = new URL(window.location.href.split("?")[0]);
         url.searchParams.append("a", cbContext.getA().toString());
         url.searchParams.append("b", cbContext.getB().toString());
@@ -148,7 +150,11 @@ setupCB(canvas).then(cbContext => {
         url.searchParams.append("cx", cbContext.getCenter()[0].toString());
         url.searchParams.append("cy", cbContext.getCenter()[1].toString());
         url.searchParams.append("zm", cbContext.getZoom().toString());
-        window.open(url.href);
+        return url.href;
+    };
+
+    window.openPresetLink = () => {
+        window.open(window.getPresetLink());
     }
 
     window.applyPreset = urlString => {
@@ -201,7 +207,8 @@ setupCB(canvas).then(cbContext => {
         resolution: [ 2000, 2000 ],
         chunked: true,
         chunkResolution: [ 500, 500 ],
-        ssaa: true
+        ssaa: true,
+        embedPreset: true
     };
 
     window.exportHiRes = () => {
@@ -223,18 +230,97 @@ setupCB(canvas).then(cbContext => {
                     return;
                 }
                 ctx.putImageData(data, 0, 0);
-                const dataUrl = canvas2.toDataURL("image/png");
+
+                const encoder = new TextEncoder();
+                const canvasBlob = await new Promise(resolve => canvas2.toBlob(resolve, "image/png"));
+                const urlBlob = new Blob([ encoder.encode("CHROMATIC.BLOSSOM.PRESET::" + window.getPresetLink()) ], { type: "text/plain" });
+                const mergedBlob = new Blob([ canvasBlob, urlBlob ], { type: "image/png" });
+
+                const dataUrl = URL.createObjectURL(mergedBlob);
                 var a = document.createElement("a");
                 a.href = dataUrl;
                 a.download = "chromatic.blossom.png";
                 a.click();
                 a.remove();
+                
                 document.querySelector("#export-overlay").style.display = "none";
             });
         }
     };
 
     document.querySelector("#export-overlay").style.display = "none";
+
+    document.querySelector("#import-url-text").value = "";
+
+    document.querySelector("#import-url-button").onclick = () => {
+        applyPreset(document.querySelector("#import-url-text").value);
+        cbContext.drawToCanvas();
+    };
+
+    function loadPresetFromFile(file) {
+        var reader = new FileReader();
+        reader.readAsText(file, "UTF-8");
+        reader.onload = readerEvent => {
+            var content = readerEvent.target.result;
+            var split = content.split("CHROMATIC.BLOSSOM.PRESET::");
+            if (split.length >= 2) {
+                window.applyPreset(split[split.length - 1]);
+                cbContext.drawToCanvas();
+            } else {
+                alert("No preset found in image.");
+            }
+        }
+    }
+
+    document.querySelector("#import-file-button").onclick = () => {
+        var input = document.createElement("input");
+        input.type = "file";
+        input.onchange = evt => { 
+
+            var file = evt.target.files[0]; 
+            loadPresetFromFile(file);
+
+        }
+        input.click();
+
+    };
+
+    window.ondragenter = event => {
+        event.preventDefault();
+        document.querySelector("#drag-overlay").style.display = "flex";
+    };
+    
+    window.ondragover = event => {
+        event.preventDefault();
+    };
+    
+    window.ondragleave = event => {
+        if (event.target == document.body || event.clientY <= 0) {
+            document.querySelector("#drag-overlay").style.display = "none";
+        }
+    };
+
+    window.ondrop = evt => {
+
+        evt.preventDefault();
+        document.querySelector("#drag-overlay").style.display = "none";
+    
+        var files = evt.dataTransfer.files;
+    
+        if (files.length) {
+    
+            loadPresetFromFile(files[0]);
+    
+        } else {
+            evt.dataTransfer.items[0].getAsString(async text => {
+                if (text.startsWith("http")) {
+                    window.applyPreset(text);
+                    cbContext.drawToCanvas();
+                }
+            });
+        }
+
+    };
 
     window.drawToCanvas = cbContext.drawToCanvas;
 
@@ -261,6 +347,7 @@ setupCB(canvas).then(cbContext => {
         setupBoolButton("skeleton-clamp-fix", () => cbContext.getSkeletonClampFix(), value => { cbContext.setSkeletonClampFix(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
         setupBoolButton("chunked", () => exportOptions.chunked, value => { exportOptions.chunked = value });
         setupBoolButton("ssaa", () => exportOptions.ssaa, value => { exportOptions.ssaa = value });
+        setupBoolButton("embed-preset", () => exportOptions.embedPreset, value => { exportOptions.embedPreset = value });
         setupNumberInput("final-export-size-x", () => exportOptions.resolution[0], value => { exportOptions.resolution[0] = Math.max(value, 1); });
         setupNumberInput("final-export-size-y", () => exportOptions.resolution[1], value => { exportOptions.resolution[1] = Math.max(value, 1); });
         setupNumberInput("chunk-size-x", () => exportOptions.chunkResolution[0], value => { exportOptions.chunkResolution[0] = Math.max(value, 1); });

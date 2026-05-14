@@ -139,7 +139,7 @@ input:disabled, button:disabled {
     }
 }
 
-#export-overlay {
+#export-overlay, #drag-overlay {
     background-color: #000000cf;
     z-index: 10;
     position: fixed;
@@ -153,4 +153,23 @@ input:disabled, button:disabled {
     flex-direction: column;
     -webkit-user-select: none;
     user-select: none;
+}
+
+#drag-overlay {
+    z-index: 9;
+}
+
+#drag-overlay div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(100% - 250px);
+    height: calc(100% - 250px);
+    border-radius: 40px;
+    border: 4px dashed #ebebeb94;
+    background-color: #00000000;
+}
+
+#import-url-text {
+    width: 300px;
 }
