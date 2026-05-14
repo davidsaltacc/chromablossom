@@ -77,19 +77,24 @@ fn fragment(input: VertexOutput) -> @location(0) vec4<f32> {
 
 	var rc: vec2<f32> = input.fragmentPosition;
 	var ratio: f32;
+	var finalRatio: f32;
 	
 	if (chunked == 1) {
 	 	ratio = f32(uniforms.chunkSize.x) / f32(uniforms.chunkSize.y);
+	 	finalRatio = f32(uniforms.finalSize.x) / f32(uniforms.finalSize.y);
 	} else {
 	 	ratio = f32(uniforms.canvasDimensions.x) / f32(uniforms.canvasDimensions.y);
 	}
 
+	var chunkAmountX: f32;
+	var chunkAmountY: f32;
 	if (chunked == 1) {
-		var chunkAmountX = f32(uniforms.finalSize.x) / f32(uniforms.chunkSize.x);
-		var chunkAmountY = f32(uniforms.finalSize.y) / f32(uniforms.chunkSize.y);
+		chunkAmountX = f32(uniforms.finalSize.x) / f32(uniforms.chunkSize.x);
+		chunkAmountY = f32(uniforms.finalSize.y) / f32(uniforms.chunkSize.y);
+		zoom /= f32(max(uniforms.chunkSize.x, uniforms.chunkSize.y)) / f32(min(uniforms.finalSize.x, uniforms.finalSize.y));
 	}
 	
-	if ((ratio > 1 && chunked != 1) || (ratio < 0 && chunked == 1)) {
+	if ((ratio > 1 && chunked != 1) || (ratio <= 1 && chunked == 1)) {
 		rc.x = rc.x / zoom * ratio;
 		rc.y = rc.y / zoom;
 	} else {
@@ -98,6 +103,19 @@ fn fragment(input: VertexOutput) -> @location(0) vec4<f32> {
 	}
 	
 	rc += center;
+	
+	if (chunked == 1) {
+		var offset: vec2<f32> = vec2<f32>(
+			 (((f32(uniforms.chunkerPos.x) + f32(uniforms.chunkSize.x) / 2.) / f32(uniforms.finalSize.x)) * 2. - 1.) / uniforms.zoom,
+			-(((f32(uniforms.chunkerPos.y) + f32(uniforms.chunkSize.y) / 2.) / f32(uniforms.finalSize.y)) * 2. - 1.) / uniforms.zoom
+		);
+		if (finalRatio > 1) {
+			offset.x *= finalRatio;
+		} else {
+			offset.y /= finalRatio;
+		}
+		rc += offset;
+	}
     
 	var color: vec3<f32> = vec3<f32>(0., 0., 0.);  
 	var rr: f32 = 0.; 
@@ -106,7 +124,7 @@ fn fragment(input: VertexOutput) -> @location(0) vec4<f32> {
 		var pos: vec2<f32> = vec2<f32>(
 			rand(rc + f32(sample)),
 			rand(1. + rc + f32(sample))
-		) / uniforms.zoom / uniforms.canvasDimensions;
+		) / zoom / uniforms.canvasDimensions;
 		pos += rc;
 		var cx: f32 = pos.x;
 		var cy: f32 = -pos.y;
