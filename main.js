@@ -41,6 +41,23 @@ function setupBoolButton(id, getter, setter) {
     };
 }
 
+function setupCollapsible(id) {
+
+    const button = document.querySelector("#collapse-" + id + "-button");
+    const content = document.querySelector("#collapse-" + id + "-content");
+
+    button.onclick = () => {
+        if (content.style.display === "none") {
+            content.style.display = "";
+            button.innerHTML = "Collapse";
+        } else {
+            content.style.display = "none";
+            button.innerHTML = "Expand";
+        }
+    };
+
+}
+
 const canvas = document.querySelector("#canvas");
 
 document.querySelector("#drag-overlay").style.display = "none";
@@ -444,11 +461,14 @@ setupCB(canvas).then(cbContext => {
     cbContext.drawToCanvas();
 
     window.updateUi = () => {
+
         setupNumberInput("canvas-size-x", () => canvas.width, value => { canvas.width = Math.max(value, 1); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
         setupNumberInput("canvas-size-y", () => canvas.height, value => { canvas.height = Math.max(value, 1); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+
         setupNumberInput("maximum-iterations", () => cbContext.getMaxIterations(), value => { cbContext.setMaxIterations(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
         setupNumberInput("sample-count", () => cbContext.getSampleCount(), value => { cbContext.setSampleCount(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
         setupNumberInput("radius", () => cbContext.getRadius(), value => { cbContext.setRadius(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+
         setupNumberInput("a", () => cbContext.getA(), value => { cbContext.setA(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
         setupNumberInput("b", () => cbContext.getB(), value => { cbContext.setB(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
         setupNumberInput("c", () => cbContext.getC(), value => { cbContext.setC(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
@@ -459,8 +479,10 @@ setupCB(canvas).then(cbContext => {
         setupNumberInput("h", () => cbContext.getH(), value => { cbContext.setH(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } }); 
         setupNumberInput("i", () => cbContext.getI(), value => { cbContext.setI(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } }); 
         setupNumberInput("j", () => cbContext.getJ(), value => { cbContext.setJ(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+
         setupBoolButton("skeleton", () => cbContext.getSkeleton(), value => { cbContext.setSkeleton(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
         setupBoolButton("skeleton-clamp-fix", () => cbContext.getSkeletonClampFix(), value => { cbContext.setSkeletonClampFix(value); if (canvas.style.display !== "none") { cbContext.drawToCanvas(); } });
+
         setupBoolButton("chunked", () => exportOptions.chunked, value => { exportOptions.chunked = value });
         setupBoolButton("ssaa", () => exportOptions.ssaa, value => { exportOptions.ssaa = value });
         setupBoolButton("embed-preset", () => exportOptions.embedPreset, value => { exportOptions.embedPreset = value });
@@ -468,6 +490,12 @@ setupCB(canvas).then(cbContext => {
         setupNumberInput("final-export-size-y", () => exportOptions.resolution[1], value => { exportOptions.resolution[1] = Math.max(value, 1); });
         setupNumberInput("chunk-size-x", () => exportOptions.chunkResolution[0], value => { exportOptions.chunkResolution[0] = Math.max(value, 1); });
         setupNumberInput("chunk-size-y", () => exportOptions.chunkResolution[1], value => { exportOptions.chunkResolution[1] = Math.max(value, 1); });
+
+        setupCollapsible("canvas-info");
+        setupCollapsible("config");
+        setupCollapsible("import");
+        setupCollapsible("export");
+
     };
 
     window.updateUi();

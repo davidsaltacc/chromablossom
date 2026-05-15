@@ -117,7 +117,7 @@ input:disabled, button:disabled {
     margin-left: 10px;
 }
 
-.config-container > button {
+.config-container > div:nth-child(2) > button {
     cursor: pointer;
     margin-left: 10px;
     margin-right: -10px;
@@ -176,4 +176,16 @@ input:disabled, button:disabled {
 
 button:disabled {
     cursor: auto;
+}
+
+.collapsible-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+.collapsible-header button {
+    margin-right: 10px;
+    cursor: pointer;
 }
