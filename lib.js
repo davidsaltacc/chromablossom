@@ -460,7 +460,7 @@ async function setupCB(canvas) {
 
         }
 
-        async function gpuTextureToUint8Array(texture, size) { // TODO note in ui that if width is multiple of 64 (if chunked, then chunk width!) things may be a bit faster
+        async function gpuTextureToUint8Array(texture, size) {
 
             const unpaddedBytesPerRow = size[0] * 4;
             const paddedBytesPerRow = Math.ceil(unpaddedBytesPerRow / 256) * 256;
