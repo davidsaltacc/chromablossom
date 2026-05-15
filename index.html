@@ -327,6 +327,101 @@
             </div>
         </div>
     </div>
+    <div class="outline animation-container">
+        <div class="collapsible-header">
+            <h2>render.animations</h2>
+            <button id="collapse-animation-button">Collapse</button>
+        </div>
+        <div id="collapse-animation-content">
+            <p>Render full animations instead of a single image. Slightly more advanced than exporting simple images, so beware. One animation is made up from multiple animationlets (if you have a better name, contact me) that control a single value over the whole animation. This can mean the value simply transitions from a to b, or more complex logic. </p>
+            <h3>edit.animationlets</h3>
+            <div class="outline">
+                <button>Add new animationlet</button>
+                <div class="outline animationlet">
+                    <div class="animationlet-top-row">
+                        <div class="animationlet-config">
+                            <p>Animationlet controlled value</p>
+                            <select title="value">
+                                <option value="cx">Center X</option>
+                                <option value="cy">Center Y</option>
+                                <option value="zoom">Zoom</option>
+                                <option value="iterations">Max iterations</option>
+                                <option value="samples">Sample count</option>
+                                <option value="radius">Radius</option>
+                                <option value="a">a</option>
+                                <option value="b">b</option>
+                                <option value="c">c</option>
+                                <option value="d">d</option>
+                                <option value="e">e</option>
+                                <option value="f">f</option>
+                                <option value="g">g</option>
+                                <option value="h">h</option>
+                                <option value="i">i</option>
+                                <option value="j">j</option>
+                                <option value="all">All (presets)</option>
+                            </select>
+                        </div>
+                        <div class="animationlet-config">
+                            <p>Animationlet type</p>
+                            <select title="type">
+                                <option value="transition">Transition</option>
+                                <option value="javascript">Javascript snippet (advanced)</option>
+                            </select>
+                        </div>
+                        <div class="animationlet-config">
+                            <p>Animationlet duration</p>
+                            <label>From (seconds) <input title="from"></label>
+                            <label>To (seconds) <input title="to"></label>
+                        </div>
+                        <div class="animationlet-config">
+                            <p>Value stays after animationlet end</p>
+                            <input type="checkbox" title="keep values after end">
+                        </div>
+                    </div>
+                    <hr>
+                    <!-- if value all -->
+                    <div class="animationlet-all-preset">
+                        <p>For the value "all", the value can range between 0 and 1, 0 meaning preset 0 and 1 meaning preset 1. It will base those presets on a preset link.</p>
+                        <div class="animationlet-full-preset-config">
+                            <p>Preset link 0</p>
+                            <input title="link" type="url" />
+                            <button>Select from file</button>
+                            <button>Insert current</button>
+                        </div>
+                        <div class="animationlet-full-preset-config">
+                            <p>Preset link 1</p>
+                            <input title="link" type="url" />
+                            <button>Select from file</button>
+                            <button>Insert current</button>
+                        </div>
+                    </div>
+                    <hr>
+                    <!-- if type transition -->
+                    <div class="animationlet-type-transition">
+                        <div class="animationlet-transition-config">
+                            <p>Easing</p>
+                            <select title="easing">
+                                <option value="linear">Linear</option>
+                                <option value="ease-out">Ease out</option>
+                                <option value="ease-in">Ease in</option>
+                                <option value="ease-in-out">Ease in out</option>
+                            </select>
+                        </div>
+                        <div class="animationlet-transition-config">
+                            <p>Value bounds</p>
+                            <label>From <input title="from"></label>
+                            <label>To <input title="to"></label>
+                        </div>
+                    </div>
+                    <!-- if type javascript -->
+                    <hr>
+                    <div>
+                        TODO (type javascript)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="export-overlay">
         <h2>Please wait...</h2>
         <noscript>Please turn on javascript for this website to work.</noscript>

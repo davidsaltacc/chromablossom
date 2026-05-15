@@ -499,6 +499,7 @@ setupCB(canvas).then(cbContext => {
         setupCollapsible("config");
         setupCollapsible("import");
         setupCollapsible("export");
+        setupCollapsible("animation");
 
     };
 

@@ -108,7 +108,7 @@ input:disabled, button:disabled {
     margin-right: 10px;
 }
 
-.config-container, .canvas-info, .export-container {
+.config-container, .canvas-info, .export-container, .animation-container {
     margin-right: 600px;
 }
 
@@ -188,4 +188,56 @@ button:disabled {
 .collapsible-header button {
     margin-right: 10px;
     cursor: pointer;
+}
+
+.animationlet-top-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.animationlet-config {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.animationlet hr {
+    border: none;
+    height: 1px;
+    background-color: #9f9f9f;
+}
+
+.animationlet-full-preset-config {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+}
+
+.animationlet-full-preset-config > * {
+    margin-right: 10px;
+}
+
+.animationlet-all-preset {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.animationlet-type-transition {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-direction: row;
+}
+
+.animationlet-transition-config {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
 }
