@@ -210,7 +210,7 @@ setupCB(canvas).then(cbContext => {
         if (Math.random() > 0.75) { cbContext.setD(cbContext.getD() + Number.parseFloat(((Math.random() - 0.5) * 2 * 2).toFixed(2))); }
         if (Math.random() > 0.75) { cbContext.setE(cbContext.getE() + Number.parseFloat(((Math.random() - 0.5) * 2).toFixed(2))); }
         if (Math.random() > 0.75) { cbContext.setF(cbContext.getF() + Number.parseFloat(((Math.random() - 0.5) * 2 * 0.2).toFixed(2))); }
-        if (Math.random() > 0.75) { cbContext.setG(cbContext.getG() + Math.round((Math.random() - 0.5) * 2) * (1 / cbContext.getC())); }
+        if (Math.random() > 0.75) { cbContext.setG(Math.round(cbContext.getG() / (1 / cbContext.getC())) * (1 / cbContext.getC()) + Math.round((Math.random() - 0.5) * 2) * (1 / cbContext.getC())); }
         if (Math.random() > 0.75) { cbContext.setH(cbContext.getH() + Number.parseFloat(((Math.random() - 0.5) * 2 * 0.2).toFixed(2))); }
         if (Math.random() > 0.75) { cbContext.setI(cbContext.getI() + Number.parseFloat(((Math.random() - 0.5) * 2 * 0.2).toFixed(2))); }
         if (Math.random() > 0.75) { if (cbContext.getJ() !== 0) { cbContext.setJ(cbContext.getJ() + Number.parseFloat(((Math.random() - 0.5) * 2 * 0.2).toFixed(2))); } }
