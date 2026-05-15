@@ -1,4 +1,8 @@
 
+if (window.location.href.startsWith("http:") && window.location.href.indexOf("127.0.0.1") < 0 && window.location.href.indexOf("localhost") < 0) {
+    window.location.href = window.location.href.replace("http:", "https:");
+}
+
 window.numberButton = (id, value) => {
     const input = document.querySelector("#number-input-" + id); 
     const maxDigitsBefore = Math.max(parseFloat(input.value).toString().split(".")[1]?.length ?? 0, parseFloat(value).toString().split(".")[1]?.length ?? 0);
