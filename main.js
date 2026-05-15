@@ -202,6 +202,21 @@ setupCB(canvas).then(cbContext => {
         window.updateUi();
         cbContext.drawToCanvas();
     };
+    
+    window.varyValues = () => {
+        if (Math.random() > 0.75) { cbContext.setA(cbContext.getA() + Number.parseFloat(((Math.random() - 0.5) * 2 * 0.08).toFixed(2))); }
+        if (Math.random() > 0.75) { cbContext.setB(cbContext.getB() + Number.parseFloat(((Math.random() - 0.5) * 2 * 0.08).toFixed(2))); }
+        if (Math.random() > 0.75) { cbContext.setC(cbContext.getC() + Math.round((Math.random() - 0.5) * 2)); cbContext.setC(cbContext.getC() == 0 ? 1 : cbContext.getC()) }
+        if (Math.random() > 0.75) { cbContext.setD(cbContext.getD() + Number.parseFloat(((Math.random() - 0.5) * 2 * 2).toFixed(2))); }
+        if (Math.random() > 0.75) { cbContext.setE(cbContext.getE() + Number.parseFloat(((Math.random() - 0.5) * 2).toFixed(2))); }
+        if (Math.random() > 0.75) { cbContext.setF(cbContext.getF() + Number.parseFloat(((Math.random() - 0.5) * 2 * 0.2).toFixed(2))); }
+        if (Math.random() > 0.75) { cbContext.setG(cbContext.getG() + Math.round((Math.random() - 0.5) * 2) * (1 / cbContext.getC())); }
+        if (Math.random() > 0.75) { cbContext.setH(cbContext.getH() + Number.parseFloat(((Math.random() - 0.5) * 2 * 0.2).toFixed(2))); }
+        if (Math.random() > 0.75) { cbContext.setI(cbContext.getI() + Number.parseFloat(((Math.random() - 0.5) * 2 * 0.2).toFixed(2))); }
+        if (Math.random() > 0.75) { if (cbContext.getJ() !== 0) { cbContext.setJ(cbContext.getJ() + Number.parseFloat(((Math.random() - 0.5) * 2 * 0.2).toFixed(2))); } }
+        window.updateUi();
+        cbContext.drawToCanvas();
+    };
 
     const exportOptions = {
         resolution: [ 2000, 2000 ],
