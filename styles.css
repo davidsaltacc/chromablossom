@@ -173,3 +173,7 @@ input:disabled, button:disabled {
 #import-url-text {
     width: 300px;
 }
+
+button:disabled {
+    cursor: auto;
+}

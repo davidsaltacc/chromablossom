@@ -120,6 +120,98 @@ setupCB(canvas).then(cbContext => {
     canvas.onmousemove = mouseMove;
     canvas.oncontextmenu = evt => evt.preventDefault();
 
+    let history = [];
+    let historyPosition = 0;
+
+    document.querySelector("#redo-button").setAttribute("disabled", "");
+    document.querySelector("#undo-button").setAttribute("disabled", "");
+
+    window.appendHistory = () => {
+
+        const values = {
+            a: cbContext.getA(),
+            b: cbContext.getB(),
+            c: cbContext.getC(),
+            d: cbContext.getD(),
+            e: cbContext.getE(),
+            f: cbContext.getF(),
+            g: cbContext.getG(),
+            h: cbContext.getH(),
+            i: cbContext.getI(),
+            j: cbContext.getJ()
+        };
+
+        if (JSON.stringify(values) == JSON.stringify(history[historyPosition])) {
+            return;
+        }
+
+        if (history.length == 0) {
+            history.push(values);
+        } else {
+            historyPosition += 1;
+            history[historyPosition] = values;
+            history = history.slice(0, historyPosition + 1);
+            document.querySelector("#undo-button").removeAttribute("disabled");
+            document.querySelector("#redo-button").setAttribute("disabled", "");
+        }
+
+    };
+
+    window.appendHistory();
+
+    window.applyHistory = () => {
+
+        const values = history[historyPosition];
+
+        if (values) {
+            cbContext.setA(values.a);
+            cbContext.setB(values.b);
+            cbContext.setC(values.c);
+            cbContext.setD(values.d);
+            cbContext.setE(values.e);
+            cbContext.setF(values.f);
+            cbContext.setG(values.g);
+            cbContext.setH(values.h);
+            cbContext.setI(values.i);
+            cbContext.setJ(values.j);
+        }
+
+    };
+
+    window.undo = () => {
+        
+        if (historyPosition == 0) {
+            return;
+        }
+
+        if (historyPosition == 1) {
+            document.querySelector("#undo-button").setAttribute("disabled", "");
+        }
+        document.querySelector("#redo-button").removeAttribute("disabled");
+
+        historyPosition -= 1;
+        window.applyHistory();
+        cbContext.drawToCanvas();
+
+    };
+
+    window.redo = () => {
+        
+        if (historyPosition == history.length - 1) {
+            return;
+        }
+        
+        if (historyPosition == history.length - 2) {
+            document.querySelector("#redo-button").setAttribute("disabled", "");
+        }
+        document.querySelector("#undo-button").removeAttribute("disabled");
+
+        historyPosition += 1;
+        window.applyHistory();
+        cbContext.drawToCanvas();
+
+    };
+
     window.saveDraft = () => {
         cbContext.drawToCanvas();
         var data = canvas.toDataURL("image/png");
@@ -179,12 +271,14 @@ setupCB(canvas).then(cbContext => {
             Number.parseFloat(url.searchParams.get("cy") ?? cbContext.getCenter()[1])
         ]);
         cbContext.setZoom(Number.parseFloat(url.searchParams.get("zm") ?? cbContext.getZoom()));
+        window.appendHistory();
     };
 
     window.resetValues = () => {
         cbContext.setDefaultValues();
         window.updateUi();
         cbContext.drawToCanvas();
+        window.appendHistory();
     };
 
     window.randomizeValues = () => {
@@ -201,6 +295,7 @@ setupCB(canvas).then(cbContext => {
         cbContext.setJ(Number.parseFloat((((Math.random() - 0.5) * 2) * 4).toFixed(2)));
         window.updateUi();
         cbContext.drawToCanvas();
+        window.appendHistory();
     };
     
     window.varyValues = () => {
@@ -216,6 +311,7 @@ setupCB(canvas).then(cbContext => {
         if (Math.random() > 0.75) { if (cbContext.getJ() !== 0) { cbContext.setJ(cbContext.getJ() + Number.parseFloat(((Math.random() - 0.5) * 2 * 0.2).toFixed(2))); } }
         window.updateUi();
         cbContext.drawToCanvas();
+        window.appendHistory();
     };
 
     const exportOptions = {
@@ -283,6 +379,7 @@ setupCB(canvas).then(cbContext => {
                 window.applyPreset(split[split.length - 1]);
                 window.updateUi();
                 cbContext.drawToCanvas();
+                window.appendHistory();
             } else {
                 alert("No preset found in image.");
             }
@@ -334,6 +431,7 @@ setupCB(canvas).then(cbContext => {
                     window.applyPreset(text);
                     window.updateUi();
                     cbContext.drawToCanvas();
+                    window.appendHistory();
                 }
             });
         }
